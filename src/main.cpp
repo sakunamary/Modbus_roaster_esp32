@@ -58,7 +58,7 @@ void loop() {
        ts = millis();
        //Setting raw value (0-1024)
        //mb.Ireg(SENSOR_IREG, analogRead(A0));
-       mb.Hreg(SENSOR_IREG,1500)
+       mb.Hreg(SENSOR_IREG,1500);
    }
    delay(10);
 }
