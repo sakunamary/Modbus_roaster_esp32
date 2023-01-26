@@ -29,7 +29,7 @@ ModbusIP mb;
 long ts;
 
 void setup() {
-    Serial.begin(57600);
+    Serial.begin(115200);
  
     WiFi.begin("rainly", "xnloveyyl");
     while (WiFi.status() != WL_CONNECTED) {
@@ -54,11 +54,10 @@ void loop() {
    mb.task();
 
    //Read each two seconds
-   if (millis() > ts + 500) {
+   if (millis() > ts + 2000) {
        ts = millis();
        //Setting raw value (0-1024)
-       //mb.Ireg(SENSOR_IREG, analogRead(A0));
-       mb.Hreg(SENSOR_IREG,1500);
+       mb.Hreg(SENSOR_IREG,23500);
    }
    delay(10);
 }

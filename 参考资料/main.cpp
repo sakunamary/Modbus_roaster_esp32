@@ -47,3 +47,57 @@ void loop() {
     au16data[5] = au16data[4]*100;
    delay(200);
 }
+
+
+
+
+//******************************第二个方法**************************/
+
+#ifdef ESP8266
+ #include <ESP8266WiFi.h>
+#else //ESP32
+ #include <WiFi.h>
+#endif
+#include <ModbusIP_ESP8266.h>
+
+//Modbus Registers Offsets
+const int SENSOR_IREG = 100;
+
+//ModbusIP object
+ModbusIP mb;
+
+long ts;
+
+void setup() {
+    Serial.begin(115200);
+ 
+    WiFi.begin("rainly", "xnloveyyl");
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println("");
+    Serial.println("WiFi connected");  
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
+
+    mb.server();		//Start Modbus IP
+    // Add SENSOR_IREG register - Use addIreg() for analog Inputs
+    mb.addHreg(SENSOR_IREG);
+
+    ts = millis();
+}
+
+void loop() {
+   //Call once inside loop() - all magic here
+   mb.task();
+
+   //Read each two seconds
+   if (millis() > ts + 2000) {
+       ts = millis();
+       //Setting raw value (0-1024)
+       mb.Hreg(SENSOR_IREG,23500);
+   }
+   delay(10);
+}
