@@ -71,6 +71,7 @@ const int AT_HREG = 3003;
 const int PWR_HREG = 3004;
 const int ROLL_HREG = 3005;
 
+
 //ModbusIP object
 ModbusIP mb;
 
@@ -354,15 +355,21 @@ if (user_wifi.Init_mode)
 
     mb.server();		//Start Modbus IP
     // Add SENSOR_IREG register - Use addIreg() for analog Inputs
-    mb.addHreg(SENSOR_IREG);
+    mb.addHreg(BT_HREG);
+    mb.addHreg(ET_HREG);
 }
 
 void loop()
 {
 
+   //Call once inside loop() - all magic here
+   mb.task();
+   mb.Hreg(BT_HREG,BT_AvgTemp);
+   mb.Hreg(ET_HREG,ET_CurTemp);
 
 
-    checkLowPowerMode(BT_AvgTemp); //测量是否进入睡眠模式
+
+   checkLowPowerMode(BT_AvgTemp); //测量是否进入睡眠模式
 
 
 

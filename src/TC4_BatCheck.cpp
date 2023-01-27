@@ -33,7 +33,7 @@ void TaskBatCheck(void *pvParameters)
     (void)pvParameters;
     TickType_t xLastWakeTime;
     const TickType_t xIntervel = 1000 * 5 / portTICK_PERIOD_MS; // check every 60s
-
+    Serial.println("Battery Task started");
     /* Task Setup and Initialize */
     charging = battery.getBatteryChargeLevel();
    // volts = battery.getBatteryVolts();

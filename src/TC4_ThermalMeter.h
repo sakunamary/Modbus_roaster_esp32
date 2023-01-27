@@ -59,7 +59,7 @@ void TaskThermalMeter(void *pvParameters)
     TickType_t xLastWakeTime;
 
     const TickType_t xIntervel = (user_wifi.sampling_time * 1000) / portTICK_PERIOD_MS;
-
+    Serial.println("Thermo Task started");
     /* Task Setup and Initialize */
     // Initial the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
@@ -163,7 +163,6 @@ void TaskThermalMeter(void *pvParameters)
             // The ET is reference temperature, don't need averaging
             // read ET from MAX6675 thermal couple
             ET_CurTemp = thermocouple_ET.readCelsius() + user_wifi.etemp_fix;
-
                 }
         }
             else

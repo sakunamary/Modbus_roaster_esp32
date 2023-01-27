@@ -159,27 +159,9 @@ void TaskIndicator(void *pvParameters)
             }
             xSemaphoreGive(xIndicatorDataMutex);
 
-#if defined(FULL_VERSION) // full version
-            //显示IP地址和蓝牙状态
-            display.drawXbm(0, 32, 16, 16, WIFI_LOGO);
-            display.drawXbm(0, 48, 16, 16, BT_LOGO);
-            display.drawStringf(2 + 16, 36 + 2,buffer,"IP:%s",local_IP);
-            display.drawStringf(2 + 16, 54,buffer,"%s",BT_EVENT);
-#endif
-
-#if defined(WIFI_VERSION) // wifi version
             //显示IP地址和蓝牙状态
             display.drawXbm(0, 32, 16, 16, WIFI_LOGO);
             display.drawStringf(2 + 16, 36 + 2,buffer,"IP:%s",local_IP);
-
-#endif
-
-#if defined(BLUETOOTH_VERSION) // wifi version
-            //显示IP地址和蓝牙状态
-            display.drawXbm(0, 32, 16, 16, BT_LOGO);
-            display.drawStringf(2 + 16, 36 + 2,buffer,"%s",BT_EVENT);
-
-#endif
 
             //显示电池电量情况
             if (charging >= 75)
