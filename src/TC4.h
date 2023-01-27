@@ -16,12 +16,11 @@
 
 
 #define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
-#define BAUDRATE 57600  //serial port baudrate
+#define BAUDRATE 115200  //serial port baudrate
 
 
 #define VERSION "1.0.0m"
-
-
+#define LED_WIFI 26
 
 // 网页设置的参数
  typedef struct eeprom_settings 
@@ -51,7 +50,7 @@ const char wifi_sussce_html[] PROGMEM = R"rawliteral(
         </head> 
 <body>
     <main class='form-signin'> 
-        <h1>Arti_Mod Setup OK</h1> <br/> 
+        <h1>Arti-Mod Setup OK</h1> <br/> 
         <p>Your settings have been saved successfully!<br />
         IF settings not working, Please do it again.<br />
         Please RESTART the device.<br />
@@ -74,7 +73,7 @@ const char index_html[] PROGMEM = R"rawliteral(
   }
 </script>
     <meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>
-    <title>TC4-WB Setup</title>
+    <title>Arti-Mod Setup</title>
     <style>*,::after,::before{box-sizing:border-box;}
     body{margin:0;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans','Liberation Sans';
     font-size:1rem;
@@ -104,7 +103,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <body>
     <main class='form-signin'> 
         <form action='/get' method='get'>
-            <h1 class=''>TC4-WB SETTING </h1>
+            <h1 class=''>Arti-Mod SETTING </h1>
             <h2 class=''>WIFI SETUP </h2>
             <div class='form-floating'>
             <label>SSID/WIFI名字</label>

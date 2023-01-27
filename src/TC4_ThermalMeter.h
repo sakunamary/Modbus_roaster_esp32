@@ -22,7 +22,7 @@
 #include "max6675.h"
 //#include "WebSerial.h"
 
-#define TEMPERATURE_ARRAY_LENGTH 4    // for averagging temperature purpose
+#define TEMPERATURE_ARRAY_LENGTH 4  // for averagging temperature purpose
 #define ABNORMAL_TEMPERATURE_DEGREE 100 // defin abnormal temperature value
 
 
@@ -149,7 +149,7 @@ void TaskThermalMeter(void *pvParameters)
                     Serial.println(" ");
                     Serial.print("Average: ");
                     Serial.print(BT_AvgTemp);
-                    Serial.print("BT compensate:");
+                    Serial.print(" BT compensate:");
                     Serial.print(user_wifi.btemp_fix);
                     Serial.println(" ");
 

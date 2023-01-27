@@ -46,6 +46,7 @@ extern uint8_t charging;
 extern float volts;
 extern int b_drop;
 extern bool bAbnormalValue;
+extern bool WIFI_STATUS = false; ;
 
 static char buffer[32];
 
@@ -57,6 +58,7 @@ void TaskIndicator(void *pvParameters)
     (void)pvParameters;
     TickType_t xLastWakeTime;
     const TickType_t xIntervel = (user_wifi.sampling_time * 1000) / portTICK_PERIOD_MS;
+    Serial.println("OLED started");
 /*
     if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
     {

@@ -26,6 +26,7 @@ Battery18650Stats battery(ADC_PIN);
 uint8_t charging;
 float volts;
 
+
 void TaskBatCheck(void *pvParameters)
 {
 
@@ -49,9 +50,10 @@ void TaskBatCheck(void *pvParameters)
         vTaskDelayUntil(&xLastWakeTime, xIntervel);
         Serial.print(F("Pwr_level %: "));
         charging = battery.getBatteryChargeLevel();
-       // volts = battery.getBatteryVolts();
+         volts = battery.getBatteryVolts();
         
         Serial.println(charging);
+
     //WebSerial.print("battery volts: ");
      //  WebSerial.println(volts);
      //  WebSerial.print("battery %: ");

@@ -55,12 +55,15 @@ String processor(const String &var);                                          //
 // define variable
 extern float BT_AvgTemp;
 extern float ET_CurTemp;
+extern float volts;
 
 String BT_EVENT;
 String local_IP;
 uint32_t lastTimestamp = millis();
 float last_BT_temp = -273.0;
 bool take_temp = true;
+long timestamp;
+
 
 TaskHandle_t xHandle_indicator;
 
@@ -70,6 +73,7 @@ const int ET_HREG = 3002;
 const int AT_HREG = 3003;
 const int PWR_HREG = 3004;
 const int ROLL_HREG = 3005;
+const int BAT_HREG = 3006;
 
 
 //ModbusIP object
@@ -137,8 +141,8 @@ void checkLowPowerMode(float temp_in)
 
 // for debug 
 //  user_wifi.Init_mode = true ;
-//   user_wifi.sampling_time = 0.25; 
-//   user_wifi.sleeping_time = 100;
+//   user_wifi.sampling_time = 0.75; 
+//   user_wifi.sleeping_time = 300;
 //   EEPROM.put(0, user_wifi);
 //    EEPROM.commit();
 
@@ -148,12 +152,12 @@ void checkLowPowerMode(float temp_in)
     if (take_temp)
     {
         last_BT_temp = temp_in;   //设置第一次温度戳
-        lastTimestamp = millis(); //设置第一次时间戳
+        timestamp = millis(); //设置第一次时间戳
         take_temp = false;
         // Serial.printf("last_BT_temp is : %f ",BT_AvgTemp);
     }
 
-    if ((millis() - lastTimestamp) > (user_wifi.sleeping_time * 1000))
+    if ((millis() - timestamp) > (user_wifi.sleeping_time * 1000))
     {
         if (abs(last_BT_temp - temp_in) < 5)
         { // 60s
@@ -194,6 +198,11 @@ void setup()
     xThermoDataMutex = xSemaphoreCreateMutex();
     xIndicatorDataMutex = xSemaphoreCreateMutex();
 
+    pinMode(LED_WIFI,OUTPUT);
+    digitalWrite(LED_WIFI,LOW);
+
+
+
     // Initialize serial communication at 115200 bits per second:
     Serial.begin(BAUDRATE);
     while (!Serial)
@@ -222,6 +231,9 @@ if (user_wifi.Init_mode)
     EEPROM.put(0, user_wifi);
     EEPROM.commit();
 }
+    // Serial.println(user_wifi.ssid);
+    // Serial.println(user_wifi.password);
+    // Serial.println(user_wifi.Init_mode);
 
     /*---------- Task Definition ---------------------*/
     // Setup tasks to run independently.
@@ -238,7 +250,7 @@ if (user_wifi.Init_mode)
     xTaskCreatePinnedToCore(
         TaskThermalMeter, "ThermalMeter" // MAX6675 thermal task to read Bean-Temperature (BT)
         ,
-        1024 // Stack size
+        1024*2 // Stack size
         ,
         NULL, 3 // Priority
         ,
@@ -256,7 +268,7 @@ if (user_wifi.Init_mode)
         &xHandle_indicator, 1 // Running Core decided by FreeRTOS , let core0 run wifi and BT
     );
 
-  //初始化网络服务
+    //初始化网络服务
     WiFi.mode(WIFI_STA);
     WiFi.begin(user_wifi.ssid, user_wifi.password);
 
@@ -266,7 +278,7 @@ if (user_wifi.Init_mode)
 
         delay(1000);
 
-        if (tries++ > 5)
+        if (tries++ > 10)
         {
 
             // Serial_debug.println("WiFi.mode(AP):");
@@ -277,19 +289,23 @@ if (user_wifi.Init_mode)
         // show AP's IP
     }
 
-
-    Serial.print("Arti-Mod's IP:");
+    Serial.print("ARTIMOD_THRMOIP:");
 
     if (WiFi.getMode() == 2) // 1:STA mode 2:AP mode
     {
         Serial.println(IpAddressToString(WiFi.softAPIP()));
         local_IP = IpAddressToString(WiFi.softAPIP());
+        WIFI_STATUS=true;
+        digitalWrite(LED_WIFI,HIGH);
     }
     else
     {
         Serial.println(IpAddressToString(WiFi.localIP()));
         local_IP = IpAddressToString(WiFi.localIP());
+        WIFI_STATUS=true;
+        digitalWrite(LED_WIFI,HIGH);
     }
+
 
     // for index.html
     server_OTA.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -357,6 +373,9 @@ if (user_wifi.Init_mode)
     // Add SENSOR_IREG register - Use addIreg() for analog Inputs
     mb.addHreg(BT_HREG);
     mb.addHreg(ET_HREG);
+    mb.addHreg(BAT_HREG);
+
+        timestamp = millis();
 }
 
 void loop()
@@ -364,11 +383,16 @@ void loop()
 
    //Call once inside loop() - all magic here
    mb.task();
-   mb.Hreg(BT_HREG,BT_AvgTemp);
-   mb.Hreg(ET_HREG,ET_CurTemp);
+  
+   //Read each two seconds
+   if (millis() > timestamp + 1000) {
+       timestamp = millis();
+    mb.Hreg(BT_HREG,BT_AvgTemp*100);
+    mb.Hreg(ET_HREG,ET_CurTemp*100);
+    mb.Hreg(BAT_HREG,volts*100);
 
-
-
+   }
+   
    checkLowPowerMode(BT_AvgTemp); //测量是否进入睡眠模式
 
 
