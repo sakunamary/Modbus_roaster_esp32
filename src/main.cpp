@@ -29,15 +29,12 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
-#include "BluetoothSerial.h"
 #include "WebSerial.h"
+#include <ModbusIP_ESP8266.h>
 
 // Thermo lib for MX6675
 #include "max6675.h"
-// Websockets Lib by links2004
-#include <WebSocketsServer.h>
-// JSON for Artisan Websocket implementation
-//#include "ArduinoJson.h"
+
 
 #include "TC4_Indicator.h"
 #include "TC4_ThermalMeter.h"
@@ -51,9 +48,7 @@ extern void TaskThermalMeter(void *pvParameters);
 extern void TaskBatCheck(void *pvParameters);
 
 // define other functions
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
 String IpAddressToString(const IPAddress &ipAddress);                         //转换IP地址格式
-void Bluetooth_Callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param); // bluetooth callback handler
 void notFound(AsyncWebServerRequest *request);                                // webpage function
 String processor(const String &var);                                          // webpage function
 
@@ -69,6 +64,15 @@ bool take_temp = true;
 
 TaskHandle_t xHandle_indicator;
 
+//Modbus Registers Offsets
+const int BT_HREG = 3001;
+const int ET_HREG = 3002;
+const int AT_HREG = 3003;
+const int PWR_HREG = 3004;
+const int ROLL_HREG = 3005;
+
+//ModbusIP object
+ModbusIP mb;
 
 
 /*
@@ -347,6 +351,10 @@ if (user_wifi.Init_mode)
     server_OTA.begin();
    // WebSerial.println("HTTP server started");
     Serial.println("HTTP server started");
+
+    mb.server();		//Start Modbus IP
+    // Add SENSOR_IREG register - Use addIreg() for analog Inputs
+    mb.addHreg(SENSOR_IREG);
 }
 
 void loop()
