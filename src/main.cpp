@@ -71,10 +71,13 @@ TaskHandle_t xHandle_indicator;
 const int BT_HREG = 3001;
 const int ET_HREG = 3002;
 const int AT_HREG = 3003;
-const int PWR_HREG = 3004;
-const int ROLL_HREG = 3005;
 const int BAT_HREG = 3006;
+const int PWR_COIL = 3004 ;
+const int FAN_COIL =3005 ;
 
+//Coil Pins
+const int PWR_PIN = 0; //GPIO0
+const int FAN_PIN = 0; //GPIO0
 
 //ModbusIP object
 ModbusIP mb;
