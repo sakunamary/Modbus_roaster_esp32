@@ -18,6 +18,21 @@
     3) ALL version can use OTA to update firmware by wifi
     4)Thermo compensate funciton also include
 
+
+
+
+    pins useage 
+
+    I2C SDA         GPIO21
+    I2C SCL         GPIO22
+    BAT CHECK       GPIO34 
+    SPI DO MISO     GPIO19
+    SPI CLK         GPIO5
+    SPI CS BT       GPIO17
+    SPI CS ET       GPIO16
+    PWM HEAT        GPIO33
+    PWM FAN         GPIO32
+
 */
 
 
@@ -41,6 +56,8 @@
 
 #include <EEPROM.h>
 
+#include <pwmWrite.h>
+
 
 // Define three tasks
 extern void TaskIndicator(void *pvParameters);
@@ -59,10 +76,14 @@ extern float volts;
 
 String BT_EVENT;
 String local_IP;
-uint32_t lastTimestamp = millis();
 float last_BT_temp = -273.0;
+
 bool take_temp = true;
 long timestamp;
+
+const uint32_t frequency = 5000;
+const byte resolution = 10;
+
 
 
 TaskHandle_t xHandle_indicator;
@@ -72,17 +93,17 @@ const int BT_HREG = 3001;
 const int ET_HREG = 3002;
 const int AT_HREG = 3003;
 const int BAT_HREG = 3006;
-const int PWR_COIL = 3004 ;
-const int FAN_COIL =3005 ;
+const int HEAT_IREG = 3004 ;
+const int FAN_IREG =3005 ;
 
 //Coil Pins
-const int PWR_PIN = 0; //GPIO0
-const int FAN_PIN = 0; //GPIO0
+const int HEAT_PIN = 33; //GPIO33
+const int FAN_PIN = 32; //GPI32
 
 //ModbusIP object
 ModbusIP mb;
 
-
+Pwm pwm = Pwm();
 /*
      // Create a task, storing the handle.
      xTaskCreate( vTaskCode, "NAME", STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHandle );
@@ -177,7 +198,7 @@ void checkLowPowerMode(float temp_in)
         }
         else
         {
-            lastTimestamp = millis(); // update timestamp
+            timestamp = millis(); // update timestamp
         }
     }
 }
@@ -203,6 +224,8 @@ void setup()
 
     pinMode(LED_WIFI,OUTPUT);
     digitalWrite(LED_WIFI,LOW);
+    pinMode(HEAT_PIN, OUTPUT);
+    pinMode(FAN_PIN, OUTPUT);   
 
 
 
@@ -372,13 +395,23 @@ if (user_wifi.Init_mode)
    // WebSerial.println("HTTP server started");
     Serial.println("HTTP server started");
 
+//Init pwm output
+    pwm.pause();
+    pwm.write(HEAT_PIN, 0, frequency, resolution);
+    pwm.write(FAN_PIN, 0, frequency, resolution);
+    pwm.resume();
+    pwm.printConfig();
+
+//Init Modbus-TCP 
     mb.server();		//Start Modbus IP
     // Add SENSOR_IREG register - Use addIreg() for analog Inputs
     mb.addHreg(BT_HREG);
     mb.addHreg(ET_HREG);
     mb.addHreg(BAT_HREG);
 
-        timestamp = millis();
+    mb.addHreg(HEAT_IREG,0);
+    mb.addHreg(FAN_IREG,0);
+    timestamp = millis();
 }
 
 void loop()
@@ -388,12 +421,15 @@ void loop()
    mb.task();
   
    //Read each two seconds
-   if (millis() > timestamp + 1000) {
+   if (millis() > timestamp + 500) {
        timestamp = millis();
     mb.Hreg(BT_HREG,BT_AvgTemp*100);
     mb.Hreg(ET_HREG,ET_CurTemp*100);
     mb.Hreg(BAT_HREG,volts*100);
-
+   //Serial.printf("HEAT value : %f\n",mb.Hreg(HEAT_IREG));
+    pwm.write(HEAT_PIN, mb.Hreg(HEAT_IREG), frequency, resolution);
+   // pwm.write(FAN_PIN, 0, frequency, resolution);
+    //analogWrite(relay, (au16data[4]/100.0)*255);
    }
    
    checkLowPowerMode(BT_AvgTemp); //测量是否进入睡眠模式
