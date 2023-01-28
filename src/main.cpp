@@ -31,8 +31,9 @@
     SPI CS BT       GPIO17
     SPI CS ET       GPIO16
     SPI CS AT       GPIO15
-    PWM HEAT        GPIO14
-    PWM FAN         GPIO12
+    PWM HEAT        GPIO27
+    PWM FAN         GPIO14
+    WIFI_SIGN       GPIO4
 
     ENCODER1 PIN1     GPIO32
     ENCODER1 PIN2     GPIO33

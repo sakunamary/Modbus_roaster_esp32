@@ -20,7 +20,7 @@
 
 
 #define VERSION "1.0.0m"
-#define LED_WIFI 26
+#define LED_WIFI 4
 
 // 网页设置的参数
  typedef struct eeprom_settings 
