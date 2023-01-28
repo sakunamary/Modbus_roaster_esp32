@@ -419,7 +419,6 @@ void loop()
 
    //Call once inside loop() - all magic here
    mb.task();
-  
    //Read each two seconds
    if (millis() > timestamp + 500) {
        timestamp = millis();
@@ -430,6 +429,8 @@ void loop()
     pwm.write(HEAT_PIN, map(mb.Hreg(HEAT_HREG),0,100,0,4096), frequency, resolution);
     pwm.write(HEAT_PIN, map(mb.Hreg(HEAT_HREG),0,100,0,4096), frequency, resolution);
    }
+
+
    
    checkLowPowerMode(BT_AvgTemp); //测量是否进入睡眠模式
 
