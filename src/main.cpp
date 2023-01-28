@@ -40,19 +40,26 @@
     ENCODER2 PIN2     GPIO25
 
     ********** IO MAP **********
-    HEAT out 
-    GND
-    Fan out 
-    GND 
-    HEAT analog in
-    FAN  analog in
+    1.24V IN
+    2.GND
 
-    THRMO BT +
-    THRMO BT -
-    THRMO ET +
-    THRMO ET -
-    THRMO AT +
-    THRMO AT -
+    3.HEAT out 
+    4.GND
+    5.Fan out 
+    6.GND 
+    7.THRMO BT +
+    8.THRMO BT -
+    9.THRMO ET +
+    10.THRMO ET -
+    11.THRMO AT +
+    12.THRMO AT -
+    13.HEAT encoder pin1  
+    14.HEAT encoder pin2  
+    15.FAN encoder pin1
+    16.FAN encoder pin2
+    
+
+
 */
 
 
