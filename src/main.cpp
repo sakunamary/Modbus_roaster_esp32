@@ -23,16 +23,36 @@
 
     pins useage 
 
-    I2C SDA         GPIO21
+    I2C SDA         GPIO21  
     I2C SCL         GPIO22
     BAT CHECK       GPIO34 
     SPI DO MISO     GPIO19
     SPI CLK         GPIO5
     SPI CS BT       GPIO17
     SPI CS ET       GPIO16
+    SPI CS AT       GPIO15
     PWM HEAT        GPIO14
     PWM FAN         GPIO12
 
+    ENCODER1 PIN1     GPIO32
+    ENCODER1 PIN2     GPIO33
+    ENCODER2 PIN1     GPIO26
+    ENCODER2 PIN2     GPIO25
+
+    ********** IO MAP **********
+    HEAT out 
+    GND
+    Fan out 
+    GND 
+    HEAT analog in
+    FAN  analog in
+
+    THRMO BT +
+    THRMO BT -
+    THRMO ET +
+    THRMO ET -
+    THRMO AT +
+    THRMO AT -
 */
 
 
