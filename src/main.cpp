@@ -429,7 +429,6 @@ void loop()
    //Serial.printf("HEAT value : %f\n",mb.Hreg(HEAT_IREG));
     pwm.write(HEAT_PIN, map(mb.Hreg(HEAT_HREG),0,100,0,4096), frequency, resolution);
     pwm.write(HEAT_PIN, map(mb.Hreg(HEAT_HREG),0,100,0,4096), frequency, resolution);
-    //analogWrite(relay, (au16data[4]/100.0)*255);
    }
    
    checkLowPowerMode(BT_AvgTemp); //测量是否进入睡眠模式
