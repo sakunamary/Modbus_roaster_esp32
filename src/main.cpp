@@ -30,8 +30,8 @@
     SPI CLK         GPIO5
     SPI CS BT       GPIO17
     SPI CS ET       GPIO16
-    PWM HEAT        GPIO33
-    PWM FAN         GPIO32
+    PWM HEAT        GPIO14
+    PWM FAN         GPIO12
 
 */
 
@@ -81,8 +81,8 @@ float last_BT_temp = -273.0;
 bool take_temp = true;
 long timestamp;
 
-const uint32_t frequency = 5000;
-const byte resolution = 10;
+const uint32_t frequency = 20000;
+const byte resolution = 12; //pwm -0-4096
 
 
 
@@ -93,12 +93,12 @@ const int BT_HREG = 3001;
 const int ET_HREG = 3002;
 const int AT_HREG = 3003;
 const int BAT_HREG = 3006;
-const int HEAT_IREG = 3004 ;
-const int FAN_IREG =3005 ;
+const int HEAT_HREG = 3004 ;
+const int FAN_HREG =3005 ;
 
 //Coil Pins
-const int HEAT_PIN = 33; //GPIO33
-const int FAN_PIN = 32; //GPI32
+const int HEAT_PIN = 14; //GPIO14
+const int FAN_PIN = 12;  //GPIO12
 
 //ModbusIP object
 ModbusIP mb;
@@ -409,8 +409,8 @@ if (user_wifi.Init_mode)
     mb.addHreg(ET_HREG);
     mb.addHreg(BAT_HREG);
 
-    mb.addHreg(HEAT_IREG,0);
-    mb.addHreg(FAN_IREG,0);
+    mb.addHreg(HEAT_HREG,0);
+    mb.addHreg(FAN_HREG,0);
     timestamp = millis();
 }
 
@@ -427,8 +427,8 @@ void loop()
     mb.Hreg(ET_HREG,ET_CurTemp*100);
     mb.Hreg(BAT_HREG,volts*100);
    //Serial.printf("HEAT value : %f\n",mb.Hreg(HEAT_IREG));
-    pwm.write(HEAT_PIN, mb.Hreg(HEAT_IREG), frequency, resolution);
-   // pwm.write(FAN_PIN, 0, frequency, resolution);
+    pwm.write(HEAT_PIN, map(mb.Hreg(HEAT_HREG),0,100,0,4096), frequency, resolution);
+    pwm.write(HEAT_PIN, map(mb.Hreg(HEAT_HREG),0,100,0,4096), frequency, resolution);
     //analogWrite(relay, (au16data[4]/100.0)*255);
    }
    
