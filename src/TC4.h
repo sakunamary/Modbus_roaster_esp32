@@ -21,6 +21,13 @@
 
 #define VERSION "1.0.0m"
 #define LED_WIFI 4
+#define ROLL_IN  26
+#define FAN_IN   25
+#define ENC_PIN1    32
+#define ENC_PIN2    33
+
+#define PWM_FREQ 20000
+#define PWM_RESOLUTION 12 //0-4096
 
 // 网页设置的参数
  typedef struct eeprom_settings 

@@ -27,18 +27,22 @@
     I2C SCL         GPIO22
     BAT CHECK       GPIO34 
     SPI DO MISO     GPIO19
-    SPI CLK         GPIO5
+    SPI CLK         GPIO18
     SPI CS BT       GPIO17
     SPI CS ET       GPIO16
     SPI CS AT       GPIO15
-    PWM HEAT        GPIO27
-    PWM FAN         GPIO14
-    WIFI_SIGN       GPIO4
+    SPI CS AT_IN    GPIO5
+    PWM HEAT        GPIO14  test OK 
+    PWM FAN         GPIO12  testOK
+    PWM ROLL        GPIO27  test ok option
+    WIFI_SIGN       GPIO4   test OK
 
-    ENCODER1 PIN1     GPIO32
+    ENCODER1 PIN1     GPIO32 
     ENCODER1 PIN2     GPIO33
-    ENCODER2 PIN1     GPIO26
-    ENCODER2 PIN2     GPIO25
+    Roll analog       GPIO26
+    Fan  analog       GPIO25
+
+    MODE select         GPIO35
 
     ********** IO MAP **********
     1.24V IN
@@ -109,8 +113,8 @@ float last_BT_temp = -273.0;
 bool take_temp = true;
 long timestamp;
 
-const uint32_t frequency = 20000;
-const byte resolution = 12; //pwm -0-4096
+const uint32_t frequency = PWM_FREQ;
+const byte resolution = PWM_RESOLUTION; //pwm -0-4096
 
 
 

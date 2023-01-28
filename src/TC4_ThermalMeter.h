@@ -37,9 +37,12 @@ bool bUnit_C = true;         // flag to indicate temperature unit from Artisan r
 bool bAbnormalValue = false; // indicate temperature value is unexpect or not
 
 int thermoDO = 19;
-int thermoCLK = 5;
+int thermoCLK = 18;
 int thermoCS_ET = 16;
 int thermoCS_BT = 17;
+int thermoCS_AT = 15;
+int thermoCS_AT_IN = 5;
+
 
 SemaphoreHandle_t xThermoDataMutex = NULL;
 
