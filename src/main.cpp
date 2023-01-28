@@ -37,12 +37,12 @@
     PWM ROLL        GPIO27  test ok option
     WIFI_SIGN       GPIO4   test OK
 
-    ENCODER1 PIN1     GPIO32 
-    ENCODER1 PIN2     GPIO33
+    ENCODER1 PIN1     GPIO33
+    ENCODER1 PIN2     GPIO32
     Roll analog       GPIO26
     Fan  analog       GPIO25
 
-    MODE select         GPIO35
+    MODE select         GPIO33
 
     ********** IO MAP **********
     1.24V IN
@@ -90,6 +90,7 @@
 
 #include <pwmWrite.h>
 
+#include <ESP32Encoder.h>
 
 // Define three tasks
 extern void TaskIndicator(void *pvParameters);
@@ -116,7 +117,7 @@ long timestamp;
 const uint32_t frequency = PWM_FREQ;
 const byte resolution = PWM_RESOLUTION; //pwm -0-4096
 
-
+int encoder_postion ;
 
 TaskHandle_t xHandle_indicator;
 
@@ -135,7 +136,14 @@ const int FAN_PIN = 12;  //GPIO12
 //ModbusIP object
 ModbusIP mb;
 
+
+
+//pwm object 
 Pwm pwm = Pwm();
+
+// rotary encoder object
+ESP32Encoder encoder;
+
 /*
      // Create a task, storing the handle.
      xTaskCreate( vTaskCode, "NAME", STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHandle );
@@ -237,6 +245,8 @@ void checkLowPowerMode(float temp_in)
 
 
 
+
+
 /* Message callback of WebSerial */
 void recvMsg(uint8_t *data, size_t len){
   WebSerial.println("Received Data...");
@@ -258,6 +268,7 @@ void setup()
     digitalWrite(LED_WIFI,LOW);
     pinMode(HEAT_PIN, OUTPUT);
     pinMode(FAN_PIN, OUTPUT);   
+
 
 
 
@@ -365,6 +376,11 @@ if (user_wifi.Init_mode)
     }
 
 
+
+
+                            
+
+
     // for index.html
     server_OTA.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
                   { request->send_P(200, "text/html", index_html, processor); });
@@ -434,6 +450,12 @@ if (user_wifi.Init_mode)
     pwm.resume();
     pwm.printConfig();
 
+//init ENCODER
+  encoder.attachHalfQuad ( ENC_DT,ENC_CLK);
+  encoder.setCount ( 0 );
+
+
+
 //Init Modbus-TCP 
     mb.server();		//Start Modbus IP
     // Add SENSOR_IREG register - Use addIreg() for analog Inputs
@@ -443,6 +465,7 @@ if (user_wifi.Init_mode)
 
     mb.addHreg(HEAT_HREG,0);
     mb.addHreg(FAN_HREG,0);
+
     timestamp = millis();
 }
 
@@ -459,10 +482,10 @@ void loop()
     mb.Hreg(BAT_HREG,volts*100);
    //Serial.printf("HEAT value : %f\n",mb.Hreg(HEAT_IREG));
     pwm.write(HEAT_PIN, map(mb.Hreg(HEAT_HREG),0,100,0,4096), frequency, resolution);
-    pwm.write(HEAT_PIN, map(mb.Hreg(HEAT_HREG),0,100,0,4096), frequency, resolution);
+
    }
 
-
+	Serial.println("Encoder Start = " + String((int32_t)encoder.getCount()));
    
    checkLowPowerMode(BT_AvgTemp); //测量是否进入睡眠模式
 

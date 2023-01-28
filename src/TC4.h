@@ -23,10 +23,15 @@
 #define LED_WIFI 4
 #define ROLL_IN  26
 #define FAN_IN   25
-#define ENC_PIN1    32
-#define ENC_PIN2    33
+#define ENC_CLK   33
+#define ENC_DT   32
+#define MIN_POS         0
+#define MAX_POS         100
 
-#define PWM_FREQ 20000
+
+#define CLICKS_PER_STEP 8
+
+#define PWM_FREQ 10000
 #define PWM_RESOLUTION 12 //0-4096
 
 // 网页设置的参数
