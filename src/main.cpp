@@ -457,7 +457,6 @@ if (user_wifi.Init_mode)
 
 void loop()
 {
-
    //Call once inside loop() - all magic here
    mb.task();
    //Read each two seconds
@@ -521,16 +520,13 @@ void loop()
        mb.Hreg(HEAT_HREG,heat_from_Hreg); //手动模式下，写入寄存器
        pwm.write(HEAT_PIN, map(heat_from_enc,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
        //FAN  控制部分 
-       if 
-
+        fan_from_analog = analogRead(FAN_IN);   //获取模拟量信息
+        
+        fan_from_Hreg = map(fan_from_analog,0,1024,0,100); // 模拟量 1024 转为 100 
+        Serial.printf("fan_from_Hreg: %d\n",fan_from_Hreg);
+        mb.Hreg(FAN_HREG,fan_from_Hreg);//手动模式下，写入寄存器
+        pwm.write(FAN_PIN,map(fan_from_Hreg,0,100,0,4096), frequency, resolution);//手动模式下，将fan数值输出到pwm
     }
-
-
-
-
-    mb.Hreg(FAN_HREG,analogRead(FAN_IN));
-
-
 
    checkLowPowerMode(BT_AvgTemp); //测量是否进入睡眠模式
 
