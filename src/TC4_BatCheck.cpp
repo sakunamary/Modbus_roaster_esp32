@@ -37,8 +37,8 @@ void TaskBatCheck(void *pvParameters)
     Serial.println("Battery Task started");
     /* Task Setup and Initialize */
     charging = battery.getBatteryChargeLevel();
-   // volts = battery.getBatteryVolts();
-
+    volts = battery.getBatteryVolts();
+    Serial.printf("Pwr_Volts %: %4.2f\n",volts);
     // Initial the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
 
@@ -50,6 +50,6 @@ void TaskBatCheck(void *pvParameters)
         vTaskDelayUntil(&xLastWakeTime, xIntervel);
         //charging = battery.getBatteryChargeLevel();
         volts = battery.getBatteryVolts();
-        Serial.printf("Pwr_level %: %4.2f\n",volts);
+        Serial.printf("Pwr_Volts %: %4.2f\n",volts);
     }
 }

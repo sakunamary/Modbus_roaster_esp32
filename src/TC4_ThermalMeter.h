@@ -101,6 +101,7 @@ void TaskThermalMeter(void *pvParameters)
                     // set abnormal flag
                     bAbnormalValue = true;
                     // print ? with temperature value in newline
+                    
                     Serial.println(" ");
                     Serial.print(" ?");
                     Serial.println(BT_CurTemp);
@@ -125,15 +126,15 @@ void TaskThermalMeter(void *pvParameters)
                 // print MAX6675 reading value on serial monitor
                 if (BT_ArrayIndex == 0)
                 {
-                    Serial.println(" ");
-                    Serial.print("Temperature: ");
+                   // Serial.println(" ");
+                    //Serial.print("Temperature: ");
 
                     //WebSerial.println(" ");
                     //WebSerial.print("Temperature: ");
                 }
 
-                Serial.print(" ");
-                Serial.print(BT_CurTemp);
+                //Serial.print(" ");
+                //Serial.print(BT_CurTemp);
 
                 ///WebSerial.print(" ");
                 //WebSerial.print(BT_CurTemp);
@@ -149,12 +150,12 @@ void TaskThermalMeter(void *pvParameters)
                         bReady = true;
                     }
 
-                    Serial.println(" ");
-                    Serial.print("Average: ");
-                    Serial.print(BT_AvgTemp);
-                    Serial.print(" BT compensate:");
-                    Serial.print(user_wifi.btemp_fix);
-                    Serial.println(" ");
+                   // Serial.println(" ");
+                   // Serial.print("Average: ");
+                   // Serial.print(BT_AvgTemp);
+                   // Serial.print(" BT compensate:");
+                   // Serial.print(user_wifi.btemp_fix);
+                   // Serial.println(" ");
 
                     //WebSerial.println(" ");
                    // WebSerial.print("Average: ");

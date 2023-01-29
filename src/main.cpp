@@ -249,6 +249,7 @@ bool getAutoRunMode(void)
 {
 
     if (digitalRead(RUN_MODE_SELECT) == HIGH) return true;
+
     else return false ;
 }
 
@@ -303,7 +304,7 @@ if (user_wifi.Init_mode)
     xTaskCreatePinnedToCore(
         TaskBatCheck, "bat_check" // 测量电池电源数据，每分钟测量一次
         ,
-        1024 // This stack size can be checked & adjusted by reading the Stack Highwater
+        1024*2 // This stack size can be checked & adjusted by reading the Stack Highwater
         ,
         NULL, 1 // Priority, with 1 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
         ,
@@ -341,7 +342,7 @@ if (user_wifi.Init_mode)
 
         delay(1000);
 
-        if (tries++ > 10)
+        if (tries++ > 5)
         {
 
             // Serial_debug.println("WiFi.mode(AP):");
@@ -436,7 +437,7 @@ if (user_wifi.Init_mode)
     Serial.println("PWM started");  
 
 //init ENCODER
-  encoder.attachHalfQuad ( ENC_DT,ENC_CLK);
+  encoder.attachSingleEdge( ENC_DT,ENC_CLK);
   encoder.setCount ( 0 );
   Serial.println("Encoder started");  
 
@@ -450,8 +451,8 @@ if (user_wifi.Init_mode)
 
     mb.addHreg(HEAT_HREG);
     mb.addHreg(FAN_HREG);
-    mb.Hreg(HEAT_HREG);
 
+    mb.Hreg(HEAT_HREG,0); //初始化赋值
 
    Serial.println("Modbus-TCP  started");  
 
@@ -471,21 +472,21 @@ void loop()
     mb.Hreg(ET_HREG,ET_CurTemp*100);
     mb.Hreg(BAT_HREG,volts*100);
 
-
    //Serial.printf("HEAT value : %f\n",mb.Hreg(HEAT_IREG));
     if (getAutoRunMode() == true ){
+  
+
        heat_from_Hreg = mb.Hreg(HEAT_HREG); //自动模式下，从寄存器获取heat的数值
        heat_from_enc = heat_from_Hreg ; //自动模式下，同步数据到encoder
        pwm.write(HEAT_PIN, map(heat_from_Hreg,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
 
     } else {
-       heat_from_enc = (int16_t)encoder.getCount(); //手动模式下，获取encoder 位置信息
+       heat_from_enc = encoder.getCount(); //手动模式下，获取encoder 位置信息
+       Serial.printf("heat_from_enc:%d \n",heat_from_enc);
        heat_from_Hreg = heat_from_enc; //手动模式下，同步数据到寄存器
        mb.Hreg(HEAT_HREG,heat_from_Hreg); //手动模式下，写入寄存器
        pwm.write(HEAT_PIN, map(heat_from_enc,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
     }
-
-    
 
    }
 
