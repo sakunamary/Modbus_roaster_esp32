@@ -111,7 +111,8 @@ float last_BT_temp = -273.0;
 
 uint16_t  heat_from_Hreg = 0;
 uint16_t  heat_from_enc  = 0;
-
+uint16_t  fan_from_Hreg  = 0;
+uint16_t  fan_from_analog  = 0;
 
 bool take_temp = true;
 long timestamp;
@@ -338,7 +339,6 @@ if (user_wifi.Init_mode)
 
         if (tries++ > 5)
         {
-
             // Serial_debug.println("WiFi.mode(AP):");
             WiFi.mode(WIFI_AP);
             WiFi.softAP("ARTIMOD_THRMO", "12345678"); // defualt IP address :192.168.4.1 password min 8 digis
@@ -363,7 +363,6 @@ if (user_wifi.Init_mode)
         WIFI_STATUS=true;
         digitalWrite(LED_WIFI,HIGH);
     }
-
 
     // for index.html
     server_OTA.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -429,6 +428,7 @@ if (user_wifi.Init_mode)
     pwm.resume();
     pwm.printConfig();
     Serial.println("PWM started");  
+    analogReadResolution(10); //0-1024
 
 //init ENCODER
   encoder.attachHalfQuad( ENC_DT,ENC_CLK);
@@ -469,13 +469,14 @@ void loop()
    }
    
    //Serial.printf("HEAT value : %f\n",mb.Hreg(HEAT_IREG));
-    if (digitalRead(RUN_MODE_SELECT) == HIGH){
+    if (digitalRead(RUN_MODE_SELECT) == HIGH){ //自动模式
     
-       if (mb.Hreg(HEAT_HREG) < 0 ) { //如果输入小于0值，自动限制在0
+       //HEAT 控制部分 
+       if (mb.Hreg(HEAT_HREG) <= 0 ) { //如果输入小于0值，自动限制在0
             heat_from_Hreg = 0;
             mb.Hreg(HEAT_HREG,heat_from_Hreg) ; //寄存器重新赋值为0
 
-       } else if (mb.Hreg(HEAT_HREG) >100 ){//如果输入大于100值，自动限制在100
+       } else if (mb.Hreg(HEAT_HREG) >= 100 ){//如果输入大于100值，自动限制在100
             heat_from_Hreg = 100;
             mb.Hreg(HEAT_HREG,heat_from_Hreg) ;//寄存器重新赋值为100
 
@@ -488,8 +489,23 @@ void loop()
        pwm.write(HEAT_PIN, map(heat_from_Hreg,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
 
 
-    } else {
+       //FAN  控制部分 
+       if(mb.Hreg(FAN_HREG) <= 0){ //自动模式下，寄存器值限制在0
+            fan_from_Hreg = 0;
+            mb.Hreg(FAN_HREG,fan_from_Hreg); //寄存器重新赋值为0
 
+       }else if (mb.Hreg(FAN_HREG) >= 100){ //自动模式下，寄存器值限制在0
+            fan_from_Hreg =100 ;
+            mb.Hreg(FAN_HREG,fan_from_Hreg);
+       } else {
+            fan_from_Hreg = mb.Hreg(FAN_HREG); //自动模式下，从寄存器读取fan的数值
+       }
+        pwm.write(FAN_PIN,map(fan_from_Hreg,0,100,0,4096),frequency, resolution) ; //自动模式下，将fan数值转换后输出到pwm
+
+
+
+    } else {//手动模式
+       //HEAT 控制部分 
        if (encoder.getCount() <0 ) {//如果输入小于0值，自动限制在0
             heat_from_enc = 0 ;
             encoder.setCount ( 0 ); //设置counter为0
@@ -504,7 +520,15 @@ void loop()
        heat_from_Hreg = heat_from_enc; //手动模式下，同步数据到寄存器
        mb.Hreg(HEAT_HREG,heat_from_Hreg); //手动模式下，写入寄存器
        pwm.write(HEAT_PIN, map(heat_from_enc,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
+       //FAN  控制部分 
+       if 
+
     }
+
+
+
+
+    mb.Hreg(FAN_HREG,analogRead(FAN_IN));
 
 
 

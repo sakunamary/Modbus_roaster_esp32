@@ -21,9 +21,9 @@
 
 #define VERSION "1.0.0m"
 #define LED_WIFI 4
-#define RUN_MODE_SELECT 35
+#define RUN_MODE_SELECT 25
 #define ROLL_IN  26
-#define FAN_IN   25
+#define FAN_IN   35
 #define ENC_CLK  33
 #define ENC_DT   32
 
