@@ -523,7 +523,6 @@ void loop()
         fan_from_analog = analogRead(FAN_IN);   //获取模拟量信息
         
         fan_from_Hreg = map(fan_from_analog,0,1024,0,100); // 模拟量 1024 转为 100 
-        Serial.printf("fan_from_Hreg: %d\n",fan_from_Hreg);
         mb.Hreg(FAN_HREG,fan_from_Hreg);//手动模式下，写入寄存器
         pwm.write(FAN_PIN,map(fan_from_Hreg,0,100,0,4096), frequency, resolution);//手动模式下，将fan数值输出到pwm
     }
