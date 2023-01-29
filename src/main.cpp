@@ -40,9 +40,9 @@
     ENCODER1 CLK        GPIO33
     ENCODER1 DT         GPIO32
     Roll analog         GPIO26
-    Fan  analog         GPIO25
+    Fan  analog         GPIO35
 
-    MODE select         GPIO35
+    RUN_MODE_SELECT         GPIO25
 
     ********** IO MAP **********
     1.24V IN
