@@ -447,6 +447,7 @@ if (user_wifi.Init_mode)
     mb.addHreg(FAN_HREG);
 
     mb.Hreg(HEAT_HREG,0); //初始化赋值
+    mb.Hreg(FAN_HREG,0);  //初始化赋值
 
    Serial.println("Modbus-TCP  started");  
 
