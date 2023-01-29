@@ -23,26 +23,26 @@
 
     pins useage 
 
-    I2C SDA         GPIO21  
-    I2C SCL         GPIO22
-    BAT CHECK       GPIO34 
-    SPI DO MISO     GPIO19
-    SPI CLK         GPIO18
-    SPI CS BT       GPIO17
-    SPI CS ET       GPIO16
-    SPI CS AT       GPIO15
-    SPI CS AT_IN    GPIO5
-    PWM HEAT        GPIO14  test OK 
-    PWM FAN         GPIO12  testOK
-    PWM ROLL        GPIO27  test ok option
-    WIFI_SIGN       GPIO4   test OK
+    I2C SDA             GPIO21  
+    I2C SCL             GPIO22
+    BAT CHECK           GPIO34 
+    SPI DO MISO         GPIO19
+    SPI CLK             GPIO18
+    SPI CS BT           GPIO17
+    SPI CS ET           GPIO16
+    SPI CS AT           GPIO15
+    //SPI CS AT_IN      GPIO5
+    PWM HEAT            GPIO14  test OK 
+    PWM FAN             GPIO12  testOK
+    //PWM ROLL          GPIO27  test ok option
+    WIFI_SIGN           GPIO4   test OK
 
-    ENCODER1 PIN1     GPIO33
-    ENCODER1 PIN2     GPIO32
-    Roll analog       GPIO26
-    Fan  analog       GPIO25
+    ENCODER1 CLK        GPIO33
+    ENCODER1 DT         GPIO32
+    Roll analog         GPIO26
+    Fan  analog         GPIO25
 
-    MODE select         GPIO33
+    MODE select         GPIO35
 
     ********** IO MAP **********
     1.24V IN
@@ -60,11 +60,9 @@
     12.THRMO AT -
     13.HEAT encoder pin1  
     14.HEAT encoder pin2  
-    15.FAN encoder pin1
-    16.FAN encoder pin2
-    
-
-
+    15.Roll analog 
+    16.Fan  analog  
+    17.MODE select  
 */
 
 
@@ -76,7 +74,6 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
-#include "WebSerial.h"
 #include <ModbusIP_ESP8266.h>
 
 // Thermo lib for MX6675
@@ -101,6 +98,7 @@ extern void TaskBatCheck(void *pvParameters);
 String IpAddressToString(const IPAddress &ipAddress);                         //转换IP地址格式
 void notFound(AsyncWebServerRequest *request);                                // webpage function
 String processor(const String &var);                                          // webpage function
+bool getAutoRunMode(void);
 
 // define variable
 extern float BT_AvgTemp;
@@ -110,6 +108,10 @@ extern float volts;
 String BT_EVENT;
 String local_IP;
 float last_BT_temp = -273.0;
+
+uint16_t  heat_from_Hreg = 0;
+uint16_t  heat_from_enc  = 0;
+
 
 bool take_temp = true;
 long timestamp;
@@ -243,20 +245,12 @@ void checkLowPowerMode(float temp_in)
     }
 }
 
+bool getAutoRunMode(void)
+{
 
-
-
-
-/* Message callback of WebSerial */
-void recvMsg(uint8_t *data, size_t len){
-  WebSerial.println("Received Data...");
-  String d = "";
-  for(int i=0; i < len; i++){
-    d += char(data[i]);
-  }
-  WebSerial.println(d);
+    if (digitalRead(RUN_MODE_SELECT) == HIGH) return true;
+    else return false ;
 }
-
 
 void setup()
 {
@@ -265,11 +259,11 @@ void setup()
     xIndicatorDataMutex = xSemaphoreCreateMutex();
 
     pinMode(LED_WIFI,OUTPUT);
-    digitalWrite(LED_WIFI,LOW);
     pinMode(HEAT_PIN, OUTPUT);
     pinMode(FAN_PIN, OUTPUT);   
+    pinMode(RUN_MODE_SELECT,INPUT);
 
-
+    digitalWrite(LED_WIFI,LOW);
 
 
     // Initialize serial communication at 115200 bits per second:
@@ -376,11 +370,6 @@ if (user_wifi.Init_mode)
     }
 
 
-
-
-                            
-
-
     // for index.html
     server_OTA.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
                   { request->send_P(200, "text/html", index_html, processor); });
@@ -432,12 +421,7 @@ if (user_wifi.Init_mode)
 
     server_OTA.onNotFound(notFound); // 404 page seems not necessary...
 
-
-    WebSerial.begin(&server_OTA);
-    WebSerial.msgCallback(recvMsg);
-
     AsyncElegantOTA.begin(&server_OTA); // Start ElegantOTA
-
 
     server_OTA.begin();
    // WebSerial.println("HTTP server started");
@@ -449,11 +433,12 @@ if (user_wifi.Init_mode)
     pwm.write(FAN_PIN, 0, frequency, resolution);
     pwm.resume();
     pwm.printConfig();
+    Serial.println("PWM started");  
 
 //init ENCODER
   encoder.attachHalfQuad ( ENC_DT,ENC_CLK);
   encoder.setCount ( 0 );
-
+  Serial.println("Encoder started");  
 
 
 //Init Modbus-TCP 
@@ -463,8 +448,13 @@ if (user_wifi.Init_mode)
     mb.addHreg(ET_HREG);
     mb.addHreg(BAT_HREG);
 
-    mb.addHreg(HEAT_HREG,0);
-    mb.addHreg(FAN_HREG,0);
+    mb.addHreg(HEAT_HREG);
+    mb.addHreg(FAN_HREG);
+    mb.Hreg(HEAT_HREG);
+
+
+   Serial.println("Modbus-TCP  started");  
+
 
     timestamp = millis();
 }
@@ -475,17 +465,31 @@ void loop()
    //Call once inside loop() - all magic here
    mb.task();
    //Read each two seconds
-   if (millis() > timestamp + 500) {
+   if (millis() > timestamp + 250) {
        timestamp = millis();
     mb.Hreg(BT_HREG,BT_AvgTemp*100);
     mb.Hreg(ET_HREG,ET_CurTemp*100);
     mb.Hreg(BAT_HREG,volts*100);
+
+
    //Serial.printf("HEAT value : %f\n",mb.Hreg(HEAT_IREG));
-    pwm.write(HEAT_PIN, map(mb.Hreg(HEAT_HREG),0,100,0,4096), frequency, resolution);
+    if (getAutoRunMode() == true ){
+       heat_from_Hreg = mb.Hreg(HEAT_HREG); //自动模式下，从寄存器获取heat的数值
+       heat_from_enc = heat_from_Hreg ; //自动模式下，同步数据到encoder
+       pwm.write(HEAT_PIN, map(heat_from_Hreg,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
+
+    } else {
+       heat_from_enc = (int16_t)encoder.getCount(); //手动模式下，获取encoder 位置信息
+       heat_from_Hreg = heat_from_enc; //手动模式下，同步数据到寄存器
+       mb.Hreg(HEAT_HREG,heat_from_Hreg); //手动模式下，写入寄存器
+       pwm.write(HEAT_PIN, map(heat_from_enc,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
+    }
+
+    
 
    }
 
-	Serial.println("Encoder Start = " + String((int32_t)encoder.getCount()));
+	//Serial.println("Encoder Start = " + String((int32_t)encoder.getCount()));
    
    checkLowPowerMode(BT_AvgTemp); //测量是否进入睡眠模式
 
