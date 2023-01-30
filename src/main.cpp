@@ -515,10 +515,12 @@ void loop()
        } else {
             heat_from_enc = encoder.getCount();//设置counter为赋值
         }
-       //Serial.printf("heat_from_enc:%d \n",heat_from_enc);
+        
        heat_from_Hreg = heat_from_enc; //手动模式下，同步数据到寄存器
        mb.Hreg(HEAT_HREG,heat_from_Hreg); //手动模式下，写入寄存器
        pwm.write(HEAT_PIN, map(heat_from_enc,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
+
+
        //FAN  控制部分 
         fan_from_analog = analogRead(FAN_IN);   //获取模拟量信息
         
