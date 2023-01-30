@@ -481,7 +481,7 @@ void loop()
 
        } else {
             heat_from_Hreg = mb.Hreg(HEAT_HREG); //自动模式下，从寄存器获取heat的数值
-
+            encoder.setCount(heat_from_Hreg); //同步encoder的步进数。
        }
 
        heat_from_enc = heat_from_Hreg ; //自动模式下，同步数据到encoder
