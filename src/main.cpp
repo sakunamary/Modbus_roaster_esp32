@@ -89,8 +89,6 @@
 #include <AsyncElegantOTA.h>
 #include <ModbusIP_ESP8266.h>
 
-// Thermo lib for MX6675
-//#include "max6675.h"
 
 #include "TC4_Indicator.h"
 #include "TC4_ThermalMeter.h"
@@ -134,6 +132,7 @@ const byte resolution = PWM_RESOLUTION; //pwm -0-4096
 int encoder_postion ;
 
 TaskHandle_t xHandle_indicator;
+CAN_frame_t rx_frame;
 
 //Modbus Registers Offsets
 const int BT_HREG = 3001;
