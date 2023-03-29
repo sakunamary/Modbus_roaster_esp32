@@ -113,11 +113,12 @@ bool getAutoRunMode(void);
 // define variable
 extern float BT_AvgTemp;
 extern float ET_CurTemp;
-extern float volts;
 
 String BT_EVENT;
 String local_IP;
 float last_BT_temp = -273.0;
+char ap_name[30] ;
+uint8_t macAddr[6];
 
 uint16_t  heat_from_Hreg = 0;
 uint16_t  heat_from_enc  = 0;
@@ -145,6 +146,9 @@ const int FAN_HREG =3005 ;
 //Coil Pins
 const int HEAT_PIN = 14; //GPIO14
 const int FAN_PIN = 12;  //GPIO12
+
+
+
 
 //ModbusIP object
 ModbusIP mb;
@@ -349,11 +353,12 @@ if (user_wifi.Init_mode)
 
         delay(1000);
 
-        if (tries++ > 5)
+        if (tries++ > 8)
         {
             // Serial_debug.println("WiFi.mode(AP):");
             WiFi.mode(WIFI_AP);
-            WiFi.softAP("ARTIMOD_THRMO", "12345678"); // defualt IP address :192.168.4.1 password min 8 digis
+            sprintf( ap_name ,"TC4-THRMO-%02x%02x%02x",macAddr[3],macAddr[4]+ macAddr[5]);
+            WiFi.softAP(ap_name, "12345678"); // defualt IP address :192.168.4.1 password min 8 digis
             break;
         }
         // show AP's IP
