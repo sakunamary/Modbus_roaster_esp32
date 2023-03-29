@@ -26,43 +26,56 @@
     I2C SDA             GPIO21  
     I2C SCL             GPIO22
     BAT CHECK           GPIO34 
-    SPI DO MISO         GPIO19
-    SPI CLK             GPIO18
-    SPI CS BT           GPIO17
-    SPI CS ET           GPIO16
-    SPI CS AT           GPIO15
-    //SPI CS AT_IN      GPIO5
+    CANTXD              GPIO5
+    CANRXD              GPIO4  
+
     PWM HEAT            GPIO14  test OK 
-    PWM FAN             GPIO12  testOK
-    //PWM ROLL          GPIO27  test ok option
+    PWM FAN             GPIO26  testOK
+    PWM ROLL            GPIO27  test ok option
     WIFI_SIGN           GPIO4   test OK
 
     ENCODER1 CLK        GPIO33
     ENCODER1 DT         GPIO32
-    Roll analog         GPIO26
+    Roll analog         GPIO34
     Fan  analog         GPIO35
 
     RUN_MODE_SELECT         GPIO25
 
-    ********** IO MAP **********
-    1.24V IN
-    2.GND
+    ********** OUTPUT IO MAP **********
+    1. GND
+    2. 24V IN
 
-    3.HEAT out 
-    4.GND
-    5.Fan out 
-    6.GND 
-    7.THRMO BT +
-    8.THRMO BT -
-    9.THRMO ET +
-    10.THRMO ET -
-    11.THRMO AT +
-    12.THRMO AT -
-    13.HEAT encoder pin1  
-    14.HEAT encoder pin2  
-    15.Roll analog 
-    16.Fan  analog  
-    17.MODE select  
+    3. 5V out 
+    4. GND
+    5. PWM FAN OUT  
+    6. FAN out
+
+    7. PWM HEAT OUT
+    8. PWM ROLL OUT
+
+    9. 5V OUT
+    10.GND
+    11.CAN_H
+    12.CAN_L
+
+   ********** INPUT IO MAP **********
+
+    1. GND
+    2. 3.3V
+    3. I2C SCL
+    4. I2C SDA
+
+    5. Fan  analog in
+    6. MODE select in
+    7. Roll analog in
+
+    8.HEAT encoder pin1  
+    9.HEAT encoder pin2  
+    10. GND
+
+    11.EN/RST
+    12.3.3V
+    13.GND
 */
 
 
@@ -76,23 +89,18 @@
 #include <AsyncElegantOTA.h>
 #include <ModbusIP_ESP8266.h>
 
-// Thermo lib for MX6675
-#include "max6675.h"
-
 
 #include "TC4_Indicator.h"
 #include "TC4_ThermalMeter.h"
 
 #include <EEPROM.h>
-
 #include <pwmWrite.h>
-
 #include <ESP32Encoder.h>
 
 // Define three tasks
 extern void TaskIndicator(void *pvParameters);
 extern void TaskThermalMeter(void *pvParameters);
-extern void TaskBatCheck(void *pvParameters);
+//extern void TaskBatCheck(void *pvParameters);
 
 // define other functions
 String IpAddressToString(const IPAddress &ipAddress);                         //转换IP地址格式
@@ -103,11 +111,12 @@ bool getAutoRunMode(void);
 // define variable
 extern float BT_AvgTemp;
 extern float ET_CurTemp;
-extern float volts;
 
 String BT_EVENT;
 String local_IP;
 float last_BT_temp = -273.0;
+char ap_name[30] ;
+uint8_t macAddr[6];
 
 uint16_t  heat_from_Hreg = 0;
 uint16_t  heat_from_enc  = 0;
@@ -123,6 +132,7 @@ const byte resolution = PWM_RESOLUTION; //pwm -0-4096
 int encoder_postion ;
 
 TaskHandle_t xHandle_indicator;
+CAN_frame_t rx_frame;
 
 //Modbus Registers Offsets
 const int BT_HREG = 3001;
@@ -135,6 +145,9 @@ const int FAN_HREG =3005 ;
 //Coil Pins
 const int HEAT_PIN = 14; //GPIO14
 const int FAN_PIN = 12;  //GPIO12
+
+
+
 
 //ModbusIP object
 ModbusIP mb;
@@ -285,26 +298,13 @@ if (user_wifi.Init_mode)
     user_wifi.sleeping_time = 300;
     user_wifi.btemp_fix = 0;
     user_wifi.etemp_fix = 0;
-    
-
     EEPROM.put(0, user_wifi);
     EEPROM.commit();
 }
-    // Serial.println(user_wifi.ssid);
-    // Serial.println(user_wifi.password);
-    // Serial.println(user_wifi.Init_mode);
+
 
     /*---------- Task Definition ---------------------*/
     // Setup tasks to run independently.
-    xTaskCreatePinnedToCore(
-        TaskBatCheck, "bat_check" // 测量电池电源数据，每分钟测量一次
-        ,
-        1024*2 // This stack size can be checked & adjusted by reading the Stack Highwater
-        ,
-        NULL, 1 // Priority, with 1 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-        ,
-        NULL,  1 // Running Core decided by FreeRTOS,let core0 run wifi and BT
-    );
 
     xTaskCreatePinnedToCore(
         TaskThermalMeter, "ThermalMeter" // MAX6675 thermal task to read Bean-Temperature (BT)
@@ -331,17 +331,20 @@ if (user_wifi.Init_mode)
     WiFi.mode(WIFI_STA);
     WiFi.begin(user_wifi.ssid, user_wifi.password);
 
+
+
     byte tries = 0;
     while (WiFi.status() != WL_CONNECTED)
     {
 
         delay(1000);
 
-        if (tries++ > 5)
+        if (tries++ > 8)
         {
             // Serial_debug.println("WiFi.mode(AP):");
             WiFi.mode(WIFI_AP);
-            WiFi.softAP("ARTIMOD_THRMO", "12345678"); // defualt IP address :192.168.4.1 password min 8 digis
+            sprintf( ap_name ,"TC4-THRMO-%02x%02x%02x",macAddr[3],macAddr[4]+ macAddr[5]);
+            WiFi.softAP(ap_name, "12345678"); // defualt IP address :192.168.4.1 password min 8 digis
             break;
         }
         // show AP's IP
@@ -420,6 +423,18 @@ if (user_wifi.Init_mode)
     server_OTA.begin();
    // WebSerial.println("HTTP server started");
     Serial.println("HTTP server started");
+
+
+
+//Init CANBUS 
+    CAN_cfg.speed=CAN_SPEED_1000KBPS;
+    CAN_cfg.tx_pin_id = GPIO_NUM_5;
+    CAN_cfg.rx_pin_id = GPIO_NUM_4;
+    CAN_cfg.rx_queue = xQueueCreate(10,sizeof(CAN_frame_t));
+    //start CAN Module
+    ESP32Can.CANInit();
+
+
 
 //Init pwm output
     pwm.pause();

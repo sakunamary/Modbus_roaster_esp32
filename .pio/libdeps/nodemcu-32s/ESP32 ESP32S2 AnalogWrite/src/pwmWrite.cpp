@@ -1,5 +1,5 @@
 /*******************************************************************
-   ESP32 PWM, SERVO and TONE Library, Version 4.2.4
+   ESP32 PWM, SERVO and TONE Library, Version 4.2.5
    by dlloydev https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite
    This Library is licensed under the MIT License
  *******************************************************************/
@@ -44,16 +44,26 @@ float Pwm::write(uint8_t pin, uint32_t duty, uint32_t frequency, uint8_t resolut
   }
   return config[ch].frequency;
 }
-
 uint32_t Pwm::writeServo(uint8_t pin, float value) {
-  uint8_t ch = attach(pin);
+  uint8_t ch = attached(pin);
+  if (ch == 253) { // free channels exist
+    for (uint8_t c = 0; c < chMax; c++) {
+      if (config[c].pin == 255 && ch == 253) { //first free ch
+        config[c].pin = pin;
+        ch = c;
+        if (config[ch].frequency < 40 || config[ch].frequency > 900) config[ch].frequency = 50;
+        if (config[ch].resolution > widthMax) config[ch].resolution = widthMax;
+        else if (config[ch].resolution < 14 && widthMax == 20) config[ch].resolution = 16;
+        else if (config[ch].resolution < 14) config[ch].resolution = 14;
+        ledcSetup(ch, config[ch].frequency, config[ch].resolution);
+        if (sync) pause(ch);
+        ledcAttachPin(pin, ch);
+      }
+    }
+  }
   float countPerUs;
   uint32_t duty = config[ch].servoDefUs;
   if (ch < chMax) { // write PWM
-    if (config[ch].frequency < 40 || config[ch].frequency > 900) config[ch].frequency = 50;
-    if (config[ch].resolution > widthMax) config[ch].resolution = widthMax;
-    else if (config[ch].resolution < 14 && widthMax == 20) config[ch].resolution = 16;
-    else if (config[ch].resolution < 14) config[ch].resolution = 14;
     countPerUs = ((1 << config[ch].resolution) - 1) / (1000000.0 / config[ch].frequency);
     if (value < config[ch].servoMinUs) {  // degrees
       if (value < 0) value = 0;
@@ -69,59 +79,36 @@ uint32_t Pwm::writeServo(uint8_t pin, float value) {
   return duty;
 }
 
-uint8_t Pwm::tone(uint8_t pin, uint32_t frequency, uint16_t duration, uint16_t interval) {
-  uint8_t ch = attached(pin);
-  if (ch == 253) {
-    ch = attach(pin);
-    write(pin, 127, frequency, 8);
-    pause(ch);
-  }
-  switch (state) {
-    case ready:
-      if (duration) {
-        config[ch].startMs = millis();
-        (duration < 0xffff) ? pause(ch) : resume(ch);
-        state = play;
-      }
-      return 0;
-      break;
-    case play:
-      if (frequency != config[ch].frequency) {
-        config[ch].startMs = millis();
-        ledcChangeFrequency(ch, frequency, config[ch].resolution);
+void Pwm::tone(uint8_t pin, uint32_t frequency, uint16_t duration, uint16_t interval) {
+  uint8_t ch = attach(pin);
+  if (ch < chMax) {
+    uint32_t ms = millis();
+    static bool durDone = false;
+    if (frequency < 4) frequency = 4;
+    if (!durDone) {
+      if (frequency != config[ch].frequency && (ms - config[ch].startMs > interval)) {
+        config[ch].startMs = ms;
         config[ch].frequency = frequency;
+        ledcChangeFrequency(ch, frequency, config[ch].resolution);
+        write(pin, 127, frequency, 8);
         resume(ch);
       }
-      if (millis() - config[ch].startMs >= duration) {
-        config[ch].startMs = millis();
-        (duration < 0xffff) ? pause(ch) : resume(ch);
-        state = stop;
-        return 2;
+      if (duration && ((ms - config[ch].startMs) > duration) || (duration == 0)) {
+        config[ch].startMs = ms;
+        durDone = true;
+        if (duration < 0xffff) pause(ch);
       }
-      return 1;
-      break;
-    case stop:
-      if (millis() - config[ch].startMs >= interval) {
-        state = ready;
-        return 0;
-      }
-      return 2;
-      break;
+    } else if (ms - config[ch].startMs > interval) durDone = false;
   }
-  return 0;
 }
 
-uint8_t Pwm::note(uint8_t pin, note_t note, uint8_t octave, uint16_t duration, uint16_t interval) {
+void Pwm::note(uint8_t pin, note_t note, uint8_t octave, uint16_t duration, uint16_t interval) {
   const uint16_t noteFrequencyBase[12] = {
     // C       C#        D       Eb        E        F       F#        G       G#        A       Bb        B
     4186,    4435,    4699,    4978,    5274,    5588,    5920,    6272,    6645,    7040,    7459,    7902
   };
-
-  if (octave > 8 || note >= NOTE_MAX) {
-    return 0;
-  }
   uint32_t noteFreq =  (uint32_t)noteFrequencyBase[note] / (uint32_t)(1 << (8 - octave));
-  return tone(pin, noteFreq, duration, interval);
+  if (octave <= 8 || note <= NOTE_MAX) tone(pin, noteFreq, duration, interval);
 }
 
 float Pwm::read(uint8_t pin) {
@@ -143,7 +130,7 @@ float Pwm::readMicroseconds(uint8_t pin) {
 
 uint8_t Pwm::attach(uint8_t pin) {
   uint8_t chan = attached(pin);
-  if (chan == 253) { // pin is free
+  if (chan == 253) { // free channels exist
     for (uint8_t ch = 0; ch < chMax; ch++) {
       if (config[ch].pin == 255) { // ch is free
         config[ch].pin = pin;
@@ -351,7 +338,6 @@ void Pwm::wr_ch_pair(uint8_t ch, uint32_t frequency, uint8_t bits) {
 
 void Pwm::wr_duty(uint8_t ch, uint32_t duty) {
   if (config[ch].duty != duty) {
-    ledcSetup(ch, config[ch].frequency, config[ch].resolution);
     ledcWrite(ch, duty);
     config[ch].duty = duty;
   }
