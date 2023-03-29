@@ -9,6 +9,7 @@
             "name": "PlatformIO",
             "includePath": [
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "/home/pi/文档/GitHub/Modbus_roaster_esp32/include",
                 "/home/pi/文档/GitHub/Modbus_roaster_esp32/src",
                 "/home/pi/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
@@ -244,6 +245,8 @@
                 "/home/pi/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                 "/home/pi/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
 =======
+=======
+>>>>>>> d8249608617d455530422e64dcff9625474574cb
                 "/Users/xiaoning/Documents/PlatformIO/Projects/Modbus_roaster/Modbus_roaster_esp32/include",
                 "/Users/xiaoning/Documents/PlatformIO/Projects/Modbus_roaster/Modbus_roaster_esp32/src",
                 "/Users/xiaoning/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
@@ -484,12 +487,16 @@
                 "/Users/xiaoning/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
                 "/Users/xiaoning/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                 "/Users/xiaoning/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
+<<<<<<< HEAD
+>>>>>>> d8249608617d455530422e64dcff9625474574cb
+=======
 >>>>>>> d8249608617d455530422e64dcff9625474574cb
                 ""
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
+<<<<<<< HEAD
 <<<<<<< HEAD
                     "/home/pi/文档/GitHub/Modbus_roaster_esp32/include",
                     "/home/pi/文档/GitHub/Modbus_roaster_esp32/src",
@@ -726,6 +733,8 @@
                     "/home/pi/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                     "/home/pi/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
 =======
+=======
+>>>>>>> d8249608617d455530422e64dcff9625474574cb
                     "/Users/xiaoning/Documents/PlatformIO/Projects/Modbus_roaster/Modbus_roaster_esp32/include",
                     "/Users/xiaoning/Documents/PlatformIO/Projects/Modbus_roaster/Modbus_roaster_esp32/src",
                     "/Users/xiaoning/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
@@ -966,6 +975,9 @@
                     "/Users/xiaoning/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
                     "/Users/xiaoning/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                     "/Users/xiaoning/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
+<<<<<<< HEAD
+>>>>>>> d8249608617d455530422e64dcff9625474574cb
+=======
 >>>>>>> d8249608617d455530422e64dcff9625474574cb
                     ""
                 ]
@@ -979,7 +991,11 @@
                 "WITH_POSIX",
                 "_GNU_SOURCE",
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "IDF_VER=\"v4.4.2\"",
+=======
+                "IDF_VER=\"v4.4.4\"",
+>>>>>>> d8249608617d455530422e64dcff9625474574cb
 =======
                 "IDF_VER=\"v4.4.4\"",
 >>>>>>> d8249608617d455530422e64dcff9625474574cb
@@ -997,7 +1013,11 @@
             "cStandard": "c99",
             "cppStandard": "c++11",
 <<<<<<< HEAD
+<<<<<<< HEAD
             "compilerPath": "/home/pi/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc",
+=======
+            "compilerPath": "/Users/xiaoning/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc",
+>>>>>>> d8249608617d455530422e64dcff9625474574cb
 =======
             "compilerPath": "/Users/xiaoning/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc",
 >>>>>>> d8249608617d455530422e64dcff9625474574cb
