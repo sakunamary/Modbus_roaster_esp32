@@ -90,10 +90,10 @@
 #include <ModbusIP_ESP8266.h>
 
 // Thermo lib for MX6675
-#include "max6675.h"
+//#include "max6675.h"
 
 #include "TC4_Indicator.h"
-//#include "TC4_ThermalMeter.h"
+#include "TC4_ThermalMeter.h"
 
 #include <EEPROM.h>
 #include <pwmWrite.h>
@@ -101,7 +101,7 @@
 
 // Define three tasks
 extern void TaskIndicator(void *pvParameters);
-//extern void TaskThermalMeter(void *pvParameters);
+extern void TaskThermalMeter(void *pvParameters);
 //extern void TaskBatCheck(void *pvParameters);
 
 // define other functions
@@ -299,29 +299,14 @@ if (user_wifi.Init_mode)
     user_wifi.sleeping_time = 300;
     user_wifi.btemp_fix = 0;
     user_wifi.etemp_fix = 0;
-    
-
     EEPROM.put(0, user_wifi);
     EEPROM.commit();
 }
-    // Serial.println(user_wifi.ssid);
-    // Serial.println(user_wifi.password);
-    // Serial.println(user_wifi.Init_mode);
+
 
     /*---------- Task Definition ---------------------*/
     // Setup tasks to run independently.
-/*
 
-    xTaskCreatePinnedToCore(
-        TaskBatCheck, "bat_check" // 测量电池电源数据，每分钟测量一次
-        ,
-        1024*2 // This stack size can be checked & adjusted by reading the Stack Highwater
-        ,
-        NULL, 1 // Priority, with 1 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-        ,
-        NULL,  1 // Running Core decided by FreeRTOS,let core0 run wifi and BT
-    );
-*/
     xTaskCreatePinnedToCore(
         TaskThermalMeter, "ThermalMeter" // MAX6675 thermal task to read Bean-Temperature (BT)
         ,
@@ -346,6 +331,8 @@ if (user_wifi.Init_mode)
     //初始化网络服务
     WiFi.mode(WIFI_STA);
     WiFi.begin(user_wifi.ssid, user_wifi.password);
+
+
 
     byte tries = 0;
     while (WiFi.status() != WL_CONNECTED)
@@ -437,6 +424,18 @@ if (user_wifi.Init_mode)
     server_OTA.begin();
    // WebSerial.println("HTTP server started");
     Serial.println("HTTP server started");
+
+
+
+//Init CANBUS 
+    CAN_cfg.speed=CAN_SPEED_1000KBPS;
+    CAN_cfg.tx_pin_id = GPIO_NUM_5;
+    CAN_cfg.rx_pin_id = GPIO_NUM_4;
+    CAN_cfg.rx_queue = xQueueCreate(10,sizeof(CAN_frame_t));
+    //start CAN Module
+    ESP32Can.CANInit();
+
+
 
 //Init pwm output
     pwm.pause();
