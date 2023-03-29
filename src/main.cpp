@@ -92,20 +92,17 @@
 // Thermo lib for MX6675
 #include "max6675.h"
 
-
 #include "TC4_Indicator.h"
-#include "TC4_ThermalMeter.h"
+//#include "TC4_ThermalMeter.h"
 
 #include <EEPROM.h>
-
 #include <pwmWrite.h>
-
 #include <ESP32Encoder.h>
 
 // Define three tasks
 extern void TaskIndicator(void *pvParameters);
-extern void TaskThermalMeter(void *pvParameters);
-extern void TaskBatCheck(void *pvParameters);
+//extern void TaskThermalMeter(void *pvParameters);
+//extern void TaskBatCheck(void *pvParameters);
 
 // define other functions
 String IpAddressToString(const IPAddress &ipAddress);                         //转换IP地址格式
@@ -309,6 +306,8 @@ if (user_wifi.Init_mode)
 
     /*---------- Task Definition ---------------------*/
     // Setup tasks to run independently.
+/*
+
     xTaskCreatePinnedToCore(
         TaskBatCheck, "bat_check" // 测量电池电源数据，每分钟测量一次
         ,
@@ -318,7 +317,7 @@ if (user_wifi.Init_mode)
         ,
         NULL,  1 // Running Core decided by FreeRTOS,let core0 run wifi and BT
     );
-
+*/
     xTaskCreatePinnedToCore(
         TaskThermalMeter, "ThermalMeter" // MAX6675 thermal task to read Bean-Temperature (BT)
         ,
