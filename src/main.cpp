@@ -26,43 +26,56 @@
     I2C SDA             GPIO21  
     I2C SCL             GPIO22
     BAT CHECK           GPIO34 
-    SPI DO MISO         GPIO19
-    SPI CLK             GPIO18
-    SPI CS BT           GPIO17
-    SPI CS ET           GPIO16
-    SPI CS AT           GPIO15
-    //SPI CS AT_IN      GPIO5
+    CANTXD              GPIO5
+    CANRXD              GPIO4  
+
     PWM HEAT            GPIO14  test OK 
-    PWM FAN             GPIO12  testOK
-    //PWM ROLL          GPIO27  test ok option
+    PWM FAN             GPIO26  testOK
+    PWM ROLL            GPIO27  test ok option
     WIFI_SIGN           GPIO4   test OK
 
     ENCODER1 CLK        GPIO33
     ENCODER1 DT         GPIO32
-    Roll analog         GPIO26
+    Roll analog         GPIO34
     Fan  analog         GPIO35
 
     RUN_MODE_SELECT         GPIO25
 
-    ********** IO MAP **********
-    1.24V IN
-    2.GND
+    ********** OUTPUT IO MAP **********
+    1. GND
+    2. 24V IN
 
-    3.HEAT out 
-    4.GND
-    5.Fan out 
-    6.GND 
-    7.THRMO BT +
-    8.THRMO BT -
-    9.THRMO ET +
-    10.THRMO ET -
-    11.THRMO AT +
-    12.THRMO AT -
-    13.HEAT encoder pin1  
-    14.HEAT encoder pin2  
-    15.Roll analog 
-    16.Fan  analog  
-    17.MODE select  
+    3. 5V out 
+    4. GND
+    5. PWM FAN OUT  
+    6. FAN out
+
+    7. PWM HEAT OUT
+    8. PWM ROLL OUT
+
+    9. 5V OUT
+    10.GND
+    11.CAN_H
+    12.CAN_L
+
+   ********** INPUT IO MAP **********
+
+    1. GND
+    2. 3.3V
+    3. I2C SCL
+    4. I2C SDA
+
+    5. Fan  analog in
+    6. MODE select in
+    7. Roll analog in
+
+    8.HEAT encoder pin1  
+    9.HEAT encoder pin2  
+    10. GND
+
+    11.EN/RST
+    12.3.3V
+    13.GND
 */
 
 
