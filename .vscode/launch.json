@@ -12,16 +12,6 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "executable": "/home/pi/文档/GitHub/Modbus_roaster_esp32/.pio/build/nodemcu-32s/firmware.elf",
-            "projectEnvName": "nodemcu-32s",
-            "toolchainBinDir": "/home/pi/.platformio/packages/toolchain-xtensa-esp32/bin",
-            "internalConsoleOptions": "openOnSessionStart",
-            "preLaunchTask": {
-                "type": "PlatformIO",
-                "task": "Pre-Debug (nodemcu-32s)"
-=======
             "executable": "/Users/xiaoning/Documents/PlatformIO/Projects/Modbus_roaster/Modbus_roaster_esp32/.pio/build/nodemcu-32s_mac/firmware.elf",
             "projectEnvName": "nodemcu-32s_mac",
             "toolchainBinDir": "/Users/xiaoning/.platformio/packages/toolchain-xtensa-esp32/bin",
@@ -29,58 +19,24 @@
             "preLaunchTask": {
                 "type": "PlatformIO",
                 "task": "Pre-Debug"
->>>>>>> d8249608617d455530422e64dcff9625474574cb
-=======
-            "executable": "/Users/xiaoning/Documents/PlatformIO/Projects/Modbus_roaster/Modbus_roaster_esp32/.pio/build/nodemcu-32s_mac/firmware.elf",
-            "projectEnvName": "nodemcu-32s_mac",
-            "toolchainBinDir": "/Users/xiaoning/.platformio/packages/toolchain-xtensa-esp32/bin",
-            "internalConsoleOptions": "openOnSessionStart",
-            "preLaunchTask": {
-                "type": "PlatformIO",
-                "task": "Pre-Debug"
->>>>>>> d8249608617d455530422e64dcff9625474574cb
             }
         },
         {
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "executable": "/home/pi/文档/GitHub/Modbus_roaster_esp32/.pio/build/nodemcu-32s/firmware.elf",
-            "projectEnvName": "nodemcu-32s",
-            "toolchainBinDir": "/home/pi/.platformio/packages/toolchain-xtensa-esp32/bin",
-=======
             "executable": "/Users/xiaoning/Documents/PlatformIO/Projects/Modbus_roaster/Modbus_roaster_esp32/.pio/build/nodemcu-32s_mac/firmware.elf",
             "projectEnvName": "nodemcu-32s_mac",
             "toolchainBinDir": "/Users/xiaoning/.platformio/packages/toolchain-xtensa-esp32/bin",
->>>>>>> d8249608617d455530422e64dcff9625474574cb
-=======
-            "executable": "/Users/xiaoning/Documents/PlatformIO/Projects/Modbus_roaster/Modbus_roaster_esp32/.pio/build/nodemcu-32s_mac/firmware.elf",
-            "projectEnvName": "nodemcu-32s_mac",
-            "toolchainBinDir": "/Users/xiaoning/.platformio/packages/toolchain-xtensa-esp32/bin",
->>>>>>> d8249608617d455530422e64dcff9625474574cb
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (without uploading)",
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "executable": "/home/pi/文档/GitHub/Modbus_roaster_esp32/.pio/build/nodemcu-32s/firmware.elf",
-            "projectEnvName": "nodemcu-32s",
-            "toolchainBinDir": "/home/pi/.platformio/packages/toolchain-xtensa-esp32/bin",
-=======
             "executable": "/Users/xiaoning/Documents/PlatformIO/Projects/Modbus_roaster/Modbus_roaster_esp32/.pio/build/nodemcu-32s_mac/firmware.elf",
             "projectEnvName": "nodemcu-32s_mac",
             "toolchainBinDir": "/Users/xiaoning/.platformio/packages/toolchain-xtensa-esp32/bin",
->>>>>>> d8249608617d455530422e64dcff9625474574cb
-=======
-            "executable": "/Users/xiaoning/Documents/PlatformIO/Projects/Modbus_roaster/Modbus_roaster_esp32/.pio/build/nodemcu-32s_mac/firmware.elf",
-            "projectEnvName": "nodemcu-32s_mac",
-            "toolchainBinDir": "/Users/xiaoning/.platformio/packages/toolchain-xtensa-esp32/bin",
->>>>>>> d8249608617d455530422e64dcff9625474574cb
             "internalConsoleOptions": "openOnSessionStart",
             "loadMode": "manual"
         }
