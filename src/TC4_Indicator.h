@@ -104,36 +104,6 @@ void TaskIndicator(void *pvParameters)
         // Wait for the next cycle
         vTaskDelayUntil(&xLastWakeTime, xIntervel);
         display.clear();
-
-/*
-        display.clearDisplay();
-        display.setTextColor(SSD1306_WHITE);
-        display.setTextSize(1);
-*/
-        if (charging <= 5)
-        {
-           
-            display.clear();
-            display.setFont(ArialMT_Plain_16);
-            // display.drawLine(64,0,64,64,WHITE);
-            // display.drawLine(0,32,128,32,WHITE);
-            
-            display.drawString(48, 14-4 + 4,"LOW");
-            
-            display.drawString(28, 30-4 + 4,"BATTERY");
-            display.drawRect(19, 7, 90, 45);
-
-            display.display();
-
-            display.setFont(ArialMT_Plain_10);
-    
-
-            vTaskDelay(user_wifi.sampling_time / portTICK_RATE_MS); // dealy 1s showup
-        }
-
-        else
-        {
-           
            /*
             display.setTextColor(SSD1306_WHITE);
             display.setTextSize(1);
@@ -145,13 +115,7 @@ void TaskIndicator(void *pvParameters)
 
             //显示温度
 
-            if (bAbnormalValue == true)
-            {
-            display.invertDisplay();
-            }
-            else
-                       display.normalDisplay();
-                //display.invertDisplay(false);
+            display.normalDisplay();
 
 
             if (xSemaphoreTake(xIndicatorDataMutex, xIntervel) == pdPASS) // Mutex to make the data more clean
@@ -165,29 +129,7 @@ void TaskIndicator(void *pvParameters)
             display.drawXbm(0, 32, 16, 16, WIFI_LOGO);
             display.drawStringf(2 + 16, 36 + 2,buffer,"IP:%s",local_IP);
 
-            //显示电池电量情况
-            if (charging >= 75)
-            {
-                display.drawXbm(SCREEN_WIDTH - 17, SCREEN_HEIGHT - 14, 16, 16,BAT_100);
-            }
-            else if (charging >= 55)
-            {
-                display.drawXbm(SCREEN_WIDTH - 17, SCREEN_HEIGHT - 14, 16, 16, BAT_75);
-            }
-            else if (charging >= 35)
-            {
-                display.drawXbm(SCREEN_WIDTH - 17, SCREEN_HEIGHT - 14, 16, 16, BAT_50);
-            }
-            else if (charging >= 15)
-            {
-                display.drawXbm(SCREEN_WIDTH - 17, SCREEN_HEIGHT - 14, 16, 16, BAT_25);
-            }
-            else
-            {
-                display.drawXbm(SCREEN_WIDTH - 17, SCREEN_HEIGHT - 14, 16, 16, BAT_0);
-            }
-              
-                        display.display();
+           
             vTaskDelay(user_wifi.sampling_time / portTICK_RATE_MS); // dealy 1s showup
         }
     }

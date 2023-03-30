@@ -109,7 +109,7 @@ String processor(const String &var);                                          //
 bool getAutoRunMode(void);
 
 // define variable
-extern float BT_AvgTemp;
+extern float BT_CurTemp;
 extern float ET_CurTemp;
 
 String BT_EVENT;

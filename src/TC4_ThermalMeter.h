@@ -40,23 +40,19 @@ void TaskThermalMeter(void *pvParameters)
 
         vTaskDelayUntil(&xLastWakeTime, xIntervel);
 
-        if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS)
-        {
+        if(xQueueReceive(CAN_cfg.rx_queue,&rx_frame, 3*portTICK_PERIOD_MS)==pdTRUE){
+            
 
-            BT_CurTemp = thermocouple_BT.readCelsius() + user_wifi.btemp_fix;
+            if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS)
+                {
 
-
-            ET_CurTemp = thermocouple_ET.readCelsius() + user_wifi.etemp_fix;
-                }
-        }
-            else
-        {
-                // After bypass abnormal value, reset flag here
-                bAbnormalValue = false;
-        }
 
             xSemaphoreGive(xThermoDataMutex);
-    }
+            }
+
+        }
+
+    
 
 
 
