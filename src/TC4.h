@@ -38,7 +38,6 @@
   float  btemp_fix;
   float  etemp_fix;
   double sampling_time;//采样时间   单位：s
-  int    sleeping_time ;//休眠时间  单位：s
   bool   Init_mode ; //是否初始化模式
 } user_wifi_t;
 
@@ -153,11 +152,7 @@ const char index_html[] PROGMEM = R"rawliteral(
             <input type='number' step = '0.25' max = '4' min='0.75' class='form-control'  name='sampling_time'> 
             </div>
             <br/>
-            <div class='form-floating'>
-            <label>Sleeping 休眠 (current:%sleeping_time%) Mins</label>
-            <input type='number' step = '1' max = '30' min='5' class='form-control' name='sleeping_time'> 
-            </div>
-            <br/>
+  
             <button type='submit'onclick="submitMessage()">SAVE</button>
         </form> 
             <p>

@@ -20,6 +20,13 @@
 #include <Arduino.h>
 #include "TC4.h"
 
+#include <ESP32CAN.h>
+#include <CAN_config.h>
+float BT_CurTemp;
+float ET_CurTemp;
+CAN_device_t CAN_cfg;
+CAN_frame_t rx_frame;
+
 SemaphoreHandle_t xThermoDataMutex = NULL;
 
 void TaskThermalMeter(void *pvParameters)
@@ -41,18 +48,21 @@ void TaskThermalMeter(void *pvParameters)
         vTaskDelayUntil(&xLastWakeTime, xIntervel);
 
         if(xQueueReceive(CAN_cfg.rx_queue,&rx_frame, 3*portTICK_PERIOD_MS)==pdTRUE){
-            
 
-            if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS)
+            if (rx_frame.MsgID == 0x0F6 && rx_frame.FIR.B.DLC == 8){
+                if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS)
                 {
-
-
-            xSemaphoreGive(xThermoDataMutex);
+                    BT_CurTemp=rx_frame.data.u32[0]+  user_wifi.btemp_fix*100 ;
+                    ET_CurTemp=rx_frame.data.u32[1]+ +  user_wifi.etemp_fix*100;
+                    xSemaphoreGive(xThermoDataMutex);
+            
+                 } 
             }
 
         }
 
-    
+    }
+}    
 
 
 

@@ -89,9 +89,9 @@
 #include <AsyncElegantOTA.h>
 #include <ModbusIP_ESP8266.h>
 
-
-#include "TC4_Indicator.h"
 #include "TC4_ThermalMeter.h"
+#include "TC4_Indicator.h"
+
 
 #include <EEPROM.h>
 #include <pwmWrite.h>
@@ -109,14 +109,17 @@ String processor(const String &var);                                          //
 bool getAutoRunMode(void);
 
 // define variable
-extern float BT_CurTemp;
-extern float ET_CurTemp;
+
 
 String BT_EVENT;
 String local_IP;
-float last_BT_temp = -273.0;
+
+
+
 char ap_name[30] ;
 uint8_t macAddr[6];
+
+
 
 uint16_t  heat_from_Hreg = 0;
 uint16_t  heat_from_enc  = 0;
@@ -132,13 +135,11 @@ const byte resolution = PWM_RESOLUTION; //pwm -0-4096
 int encoder_postion ;
 
 TaskHandle_t xHandle_indicator;
-CAN_frame_t rx_frame;
 
 //Modbus Registers Offsets
 const int BT_HREG = 3001;
 const int ET_HREG = 3002;
 const int AT_HREG = 3003;
-const int BAT_HREG = 3006;
 const int HEAT_HREG = 3004 ;
 const int FAN_HREG =3005 ;
 
@@ -151,7 +152,6 @@ const int FAN_PIN = 12;  //GPIO12
 
 //ModbusIP object
 ModbusIP mb;
-
 
 
 //pwm object 
@@ -170,7 +170,7 @@ ESP32Encoder encoder;
      vTaskSuspend( xHandle );
 
 */
-user_wifi_t user_wifi = {" ", " ", 0.0, 0.0, 0.75, 300,true};
+user_wifi_t user_wifi = {" ", " ", 0.0, 0.0, 0.75,true};
 
 // object declare
 AsyncWebServer server_OTA(80);
@@ -203,10 +203,7 @@ String processor(const String &var)
     { //
         return String(user_wifi.sampling_time);
     }
-    else if (var == "sleeping_time")
-    {
-        return String(user_wifi.sleeping_time/60);
-    }
+ 
     return String();
 }
 
@@ -215,57 +212,13 @@ void notFound(AsyncWebServerRequest *request)
     request->send(404, "text/plain", "Opps....Not found");
 }
 
-// low power mode; checks every few seconds for an event
-void checkLowPowerMode(float temp_in)
-{
-
-// for debug 
-//  user_wifi.Init_mode = true ;
-//   user_wifi.sampling_time = 0.75; 
-//   user_wifi.sleeping_time = 300;
-//   EEPROM.put(0, user_wifi);
-//    EEPROM.commit();
-
-//    Serial.println("reset function done!");
-//
-
-    if (take_temp)
-    {
-        last_BT_temp = temp_in;   //设置第一次温度戳
-        timestamp = millis(); //设置第一次时间戳
-        take_temp = false;
-        // Serial.printf("last_BT_temp is : %f ",BT_AvgTemp);
-    }
-
-    if ((millis() - timestamp) > (user_wifi.sleeping_time * 1000))
-    {
-        if (abs(last_BT_temp - temp_in) < 5)
-        { // 60s
-            take_temp = true;
-            vTaskSuspend(xHandle_indicator);
-            // 满足条件1:时间够60s and 条件2: 温度变化不超过5度
-            // display.dim(true); //set OLED DIM
-            display.clear(); // disable OLED
-            
-            display.display();      // disable OLE
-            delay(1000);
-            // set sleep mode
-            esp_deep_sleep_start();
-        }
-        else
-        {
-            timestamp = millis(); // update timestamp
-        }
-    }
-}
-
 
 
 void setup()
 {
 
     xThermoDataMutex = xSemaphoreCreateMutex();
-    xIndicatorDataMutex = xSemaphoreCreateMutex();
+    //xIndicatorDataMutex = xSemaphoreCreateMutex();
 
     pinMode(LED_WIFI,OUTPUT);
     pinMode(HEAT_PIN, OUTPUT);
@@ -295,7 +248,6 @@ if (user_wifi.Init_mode)
 {
     user_wifi.Init_mode = false ;
     user_wifi.sampling_time = 0.75; 
-    user_wifi.sleeping_time = 300;
     user_wifi.btemp_fix = 0;
     user_wifi.etemp_fix = 0;
     EEPROM.put(0, user_wifi);
@@ -407,10 +359,6 @@ if (user_wifi.Init_mode)
                       {
                           user_wifi.sampling_time = request->getParam("sampling_time")->value().toFloat();
                       }
-                      if (request->getParam("sleeping_time")->value() != "")
-                      {
-                          user_wifi.sleeping_time = request->getParam("sleeping_time")->value().toInt() * 60; // input in MINUTES covernet to seconds
-                      }
                       // Svae EEPROM
                       EEPROM.put(0, user_wifi);
                       EEPROM.commit();
@@ -427,10 +375,10 @@ if (user_wifi.Init_mode)
 
 
 //Init CANBUS 
-    CAN_cfg.speed=CAN_SPEED_1000KBPS;
+    CAN_cfg.speed=CAN_SPEED_125KBPS;
     CAN_cfg.tx_pin_id = GPIO_NUM_5;
     CAN_cfg.rx_pin_id = GPIO_NUM_4;
-    CAN_cfg.rx_queue = xQueueCreate(10,sizeof(CAN_frame_t));
+    CAN_cfg.rx_queue = xQueueCreate(5,sizeof(CAN_frame_t));
     //start CAN Module
     ESP32Can.CANInit();
 
@@ -456,7 +404,7 @@ if (user_wifi.Init_mode)
     // Add SENSOR_IREG register - Use addIreg() for analog Inputs
     mb.addHreg(BT_HREG);
     mb.addHreg(ET_HREG);
-    mb.addHreg(BAT_HREG);
+
 
     mb.addHreg(HEAT_HREG);
     mb.addHreg(FAN_HREG);
@@ -465,7 +413,8 @@ if (user_wifi.Init_mode)
     mb.Hreg(FAN_HREG,0);  //初始化赋值
 
    Serial.println("Modbus-TCP  started");  
-    timestamp = millis();
+
+timestamp=millis();
 }
 
 void loop()
@@ -475,9 +424,9 @@ void loop()
    //Read each two seconds
    if (millis() > timestamp + 250) {
        timestamp = millis();
-    mb.Hreg(BT_HREG,BT_AvgTemp*100);
-    mb.Hreg(ET_HREG,ET_CurTemp*100);
-    mb.Hreg(BAT_HREG,volts*100);
+    mb.Hreg(BT_HREG,BT_CurTemp);
+    mb.Hreg(ET_HREG,ET_CurTemp);
+
    }
    
    //Serial.printf("HEAT value : %f\n",mb.Hreg(HEAT_IREG));
@@ -541,9 +490,6 @@ void loop()
         pwm.write(FAN_PIN,map(fan_from_Hreg,0,100,0,4096), frequency, resolution);//手动模式下，将fan数值输出到pwm     
 
     }
-
-   checkLowPowerMode(BT_AvgTemp); //测量是否进入睡眠模式
-
 
 
 }

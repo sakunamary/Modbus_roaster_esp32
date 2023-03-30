@@ -36,16 +36,12 @@
 //Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 SSD1306Wire display(SCREEN_ADDRESS, SDA, SCL);   // ADDRESS, SDA, SCL  -  SDA and SCL usually populate automatically based on your board's pins_arduino.h e.g. https://github.com/esp8266/Arduino/blob/master/variants/nodemcu/pins_arduino.h
 
-SemaphoreHandle_t xIndicatorDataMutex = NULL;
+//SemaphoreHandle_t xIndicatorDataMutex = NULL;
 
-extern float BT_AvgTemp;
+extern float BT_CurTemp;
 extern float ET_CurTemp;
 extern String local_IP;
 extern String BT_EVENT;
-extern uint8_t charging;
-extern float volts;
-extern int b_drop;
-extern bool bAbnormalValue;
 extern bool WIFI_STATUS = false; ;
 
 static char buffer[32];
@@ -59,14 +55,8 @@ void TaskIndicator(void *pvParameters)
     TickType_t xLastWakeTime;
     const TickType_t xIntervel = (user_wifi.sampling_time * 1000) / portTICK_PERIOD_MS;
     Serial.println("OLED started");
-/*
-    if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
-    {
-        Serial.println(F("SSD1306 allocation failed"));
-        for (;;)
-            ; // Don't proceed, loop forever
-    }
-*/
+
+
     String ver = VERSION;
 
    display.init();
@@ -81,19 +71,6 @@ void TaskIndicator(void *pvParameters)
    display.drawXbm(17, 19,  94, 43,logo_bmp);
    display.display();
 
-
-/*
-
-    // Show initial display buffer contents on the screen --
-    display.clearDisplay();
-    display.setTextColor(SSD1306_WHITE);
-    display.setTextSize(1);
-    display.setCursor(86, 0 + 2);
-
-    display.print(ver);
-    display.drawBitmap(17, 19, logo_bmp, 94, 45, WHITE);
-    display.display();
-*/
     vTaskDelay(3000 / portTICK_RATE_MS); // dealy 3s showup
 
     // Initial the xLastWakeTime variable with the current time.
@@ -104,35 +81,28 @@ void TaskIndicator(void *pvParameters)
         // Wait for the next cycle
         vTaskDelayUntil(&xLastWakeTime, xIntervel);
         display.clear();
-           /*
-            display.setTextColor(SSD1306_WHITE);
-            display.setTextSize(1);
-           */
+
             //显示logo
 
             display.drawXbm(0, 0, 16, 16, BEAN_LOGO);
             display.drawXbm(0, 16, 16, 16, DRUMMER_LOGO);
 
             //显示温度
-
-            display.normalDisplay();
-
-
-            if (xSemaphoreTake(xIndicatorDataMutex, xIntervel) == pdPASS) // Mutex to make the data more clean
+            if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS) // Mutex to make the data more clean
             {
-                display.drawStringf(2 + 16, 0 + 2,buffer,"BT:%4.2f",BT_AvgTemp);
-                display.drawStringf(2 + 16, 18 + 2,buffer,"ET:%4.2f",ET_CurTemp);
+                display.drawStringf(2 + 16, 0 + 2,buffer,"BT:%4.2f",BT_CurTemp/100);
+                display.drawStringf(2 + 16, 18 + 2,buffer,"ET:%4.2f",ET_CurTemp/100);
             }
-            xSemaphoreGive(xIndicatorDataMutex);
+            xSemaphoreGive(xThermoDataMutex);
 
             //显示IP地址和蓝牙状态
             display.drawXbm(0, 32, 16, 16, WIFI_LOGO);
             display.drawStringf(2 + 16, 36 + 2,buffer,"IP:%s",local_IP);
 
-           
+            display.display();
             vTaskDelay(user_wifi.sampling_time / portTICK_RATE_MS); // dealy 1s showup
         }
     }
-}
+
 
 #endif
