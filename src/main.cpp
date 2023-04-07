@@ -88,16 +88,23 @@
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
 
+#include <ESP32CAN.h>
+#include <CAN_config.h>
 
 #include <ModbusIP_ESP8266.h>
 
-#include "TC4_ThermalMeter.h"
-#include "TC4_Indicator.h"
 
 
 #include <EEPROM.h>
 #include <pwmWrite.h>
 #include <ESP32Encoder.h>
+
+
+
+#include "TC4_ThermalMeter.h"
+#include "TC4_Indicator.h"
+
+
 
 // Define three tasks
 extern void TaskIndicator(void *pvParameters);
@@ -220,7 +227,6 @@ void notFound(AsyncWebServerRequest *request)
 
 void setup()
 {
-
     xThermoDataMutex = xSemaphoreCreateMutex();
     //xIndicatorDataMutex = xSemaphoreCreateMutex();
 
@@ -231,7 +237,6 @@ void setup()
     pinMode(FAN_IN,INPUT);
     digitalWrite(LED_WIFI,LOW);
 
-
     // Initialize serial communication at 115200 bits per second:
     Serial.begin(BAUDRATE);
     while (!Serial)
@@ -241,6 +246,7 @@ void setup()
 
     Serial.printf("\nArti-Mod  STARTING...\n");
 
+    Serial.printf("\nREAD data from EEPROM...\n");
     // set up eeprom data
     EEPROM.begin(sizeof(user_wifi));
     EEPROM.get(0, user_wifi);
@@ -257,31 +263,7 @@ if (user_wifi.Init_mode)
     EEPROM.put(0, user_wifi);
     EEPROM.commit();
 }
-
-
-    /*---------- Task Definition ---------------------*/
-    // Setup tasks to run independently.
-
-    xTaskCreatePinnedToCore(
-        TaskThermalMeter, "ThermalMeter" // MAX6675 thermal task to read Bean-Temperature (BT)
-        ,
-        1024*2 // Stack size
-        ,
-        NULL, 3 // Priority
-        ,
-        NULL, 
-        1 // Running Core decided by FreeRTOS,let core0 run wifi and BT
-    );
-
-    xTaskCreatePinnedToCore(
-        TaskIndicator, "IndicatorTask" // 128*64 SSD1306 OLED 显示参数
-        ,
-        1024*6 // This stack size can be checked & adjusted by reading the Stack Highwater
-        ,
-        NULL, 2 // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-        ,
-        &xHandle_indicator, 1 // Running Core decided by FreeRTOS , let core0 run wifi and BT
-    );
+    Serial.printf("\nStart WIFI service...\n");
 
     //初始化网络服务
     WiFi.mode(WIFI_STA);
@@ -370,24 +352,27 @@ if (user_wifi.Init_mode)
 
     server_OTA.onNotFound(notFound); // 404 page seems not necessary...
 
+
+    Serial.printf("\nStart OTA service...\n");
     AsyncElegantOTA.begin(&server_OTA); // Start ElegantOTA
 
+    Serial.printf("\nStart WEB  service...\n");
     server_OTA.begin();
    // WebSerial.println("HTTP server started");
     Serial.println("HTTP server started");
 
 
-
+    Serial.printf("\nStart CANBUS  service...\n");
 //Init CANBUS 
     CAN_cfg.speed=CAN_SPEED_125KBPS;
     CAN_cfg.tx_pin_id = GPIO_NUM_5;
     CAN_cfg.rx_pin_id = GPIO_NUM_4;
-    CAN_cfg.rx_queue = xQueueCreate(5,sizeof(CAN_frame_t));
+    CAN_cfg.rx_queue = xQueueCreate(10,sizeof(CAN_frame_t));
     //start CAN Module
     ESP32Can.CANInit();
 
 
-
+    Serial.printf("\nStart OUTPUT PWM  service...\n");
 //Init pwm output
     pwm.pause();
     pwm.write(HEAT_OUT_PIN, 0, frequency, resolution);
@@ -397,12 +382,14 @@ if (user_wifi.Init_mode)
     Serial.println("PWM started");  
     analogReadResolution(10); //0-1024
 
+
+    Serial.printf("\nStart INPUT ENCODER  service...\n");
 //init ENCODER
   encoder.attachHalfQuad( ENC_DT,ENC_CLK);
   encoder.setCount ( 0 );
   Serial.println("Encoder started");  
 
-
+    Serial.printf("\nStart Modbus-TCP  service...\n");
 //Init Modbus-TCP 
     mb.server();		//Start Modbus IP
     // Add SENSOR_IREG register - Use addIreg() for analog Inputs
@@ -418,7 +405,41 @@ if (user_wifi.Init_mode)
 
    Serial.println("Modbus-TCP  started");  
 
+
 timestamp=millis();
+
+    Serial.printf("\nStart tasks service...\n");
+
+    /*---------- Task Definition ---------------------*/
+    // Setup tasks to run independently.
+
+    xTaskCreatePinnedToCore(
+        TaskThermalMeter, "ThermalMeter" // MAX6675 thermal task to read Bean-Temperature (BT)
+        ,
+        1024*2 // Stack size
+        ,
+        NULL, 3 // Priority
+        ,
+        NULL, 
+        1 // Running Core decided by FreeRTOS,let core0 run wifi and BT
+    );
+
+    xTaskCreatePinnedToCore(
+        TaskIndicator, "IndicatorTask" // 128*64 SSD1306 OLED 显示参数
+        ,
+        1024*6 // This stack size can be checked & adjusted by reading the Stack Highwater
+        ,
+        NULL, 2 // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+        ,
+        &xHandle_indicator, 1 // Running Core decided by FreeRTOS , let core0 run wifi and BT
+    );
+
+
+
+
+
+
+
 }
 
 void loop()

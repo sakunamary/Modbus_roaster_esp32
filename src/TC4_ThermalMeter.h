@@ -24,8 +24,10 @@
 #include <CAN_config.h>
 float BT_CurTemp;
 float ET_CurTemp;
-CAN_device_t CAN_cfg;
+
+
 CAN_frame_t rx_frame;
+CAN_device_t CAN_cfg;
 
 SemaphoreHandle_t xThermoDataMutex = NULL;
 
