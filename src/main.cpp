@@ -32,7 +32,7 @@
     PWM HEAT            GPIO14  test OK 
     PWM FAN             GPIO26  testOK
     PWM ROLL            GPIO27  test ok option
-    WIFI_SIGN           GPIO4   test OK
+    WIFI_SIGN           GPIO17   test OK
 
     ENCODER1 CLK        GPIO33
     ENCODER1 DT         GPIO32
@@ -87,6 +87,8 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
+
+
 #include <ModbusIP_ESP8266.h>
 
 #include "TC4_ThermalMeter.h"
@@ -139,13 +141,15 @@ TaskHandle_t xHandle_indicator;
 //Modbus Registers Offsets
 const int BT_HREG = 3001;
 const int ET_HREG = 3002;
-const int AT_HREG = 3003;
+const int AP_HREG = 3003;
 const int HEAT_HREG = 3004 ;
-const int FAN_HREG =3005 ;
+const int FAN_HREG  = 3005 ;
+const int ROLL_HREG = 3006 ; 
+
 
 //Coil Pins
-const int HEAT_PIN = 14; //GPIO14
-const int FAN_PIN = 12;  //GPIO12
+const int HEAT_OUT_PIN = PWM_HEAT; //GPIO14
+const int FAN_OUT_PIN = PWM_FAN;  //GPIO12
 
 
 
@@ -170,7 +174,7 @@ ESP32Encoder encoder;
      vTaskSuspend( xHandle );
 
 */
-user_wifi_t user_wifi = {" ", " ", 0.0, 0.0, 0.75,true};
+user_wifi_t user_wifi = {" ", " ", 0.0, 0.0, 1.0,true};
 
 // object declare
 AsyncWebServer server_OTA(80);
@@ -221,8 +225,8 @@ void setup()
     //xIndicatorDataMutex = xSemaphoreCreateMutex();
 
     pinMode(LED_WIFI,OUTPUT);
-    pinMode(HEAT_PIN, OUTPUT);
-    pinMode(FAN_PIN, OUTPUT);   
+    pinMode(HEAT_OUT_PIN, OUTPUT);
+    pinMode(FAN_OUT_PIN, OUTPUT);   
     pinMode(RUN_MODE_SELECT,INPUT);
     pinMode(FAN_IN,INPUT);
     digitalWrite(LED_WIFI,LOW);
@@ -295,14 +299,14 @@ if (user_wifi.Init_mode)
         {
             // Serial_debug.println("WiFi.mode(AP):");
             WiFi.mode(WIFI_AP);
-            sprintf( ap_name ,"TC4-THRMO-%02x%02x%02x",macAddr[3],macAddr[4]+ macAddr[5]);
+            sprintf( ap_name ,"TC4-THRMO-%02x%02x",macAddr[4],macAddr[5]);
             WiFi.softAP(ap_name, "12345678"); // defualt IP address :192.168.4.1 password min 8 digis
             break;
         }
         // show AP's IP
     }
 
-    Serial.print("ARTIMOD_THRMOIP:");
+    Serial.print("MODBUS_CONTROL IP:");
 
     if (WiFi.getMode() == 2) // 1:STA mode 2:AP mode
     {
@@ -386,10 +390,10 @@ if (user_wifi.Init_mode)
 
 //Init pwm output
     pwm.pause();
-    pwm.write(HEAT_PIN, 0, frequency, resolution);
-    pwm.write(FAN_PIN, 0, frequency, resolution);
+    pwm.write(HEAT_OUT_PIN, 0, frequency, resolution);
+    pwm.write(FAN_OUT_PIN, 0, frequency, resolution);
     pwm.resume();
-    pwm.printConfig();
+    //pwm.printConfig();
     Serial.println("PWM started");  
     analogReadResolution(10); //0-1024
 
@@ -447,7 +451,7 @@ void loop()
        }
 
        heat_from_enc = heat_from_Hreg ; //自动模式下，同步数据到encoder
-       pwm.write(HEAT_PIN, map(heat_from_Hreg,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
+       pwm.write(HEAT_OUT_PIN, map(heat_from_Hreg,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
 
 
        //FAN  控制部分 
@@ -461,7 +465,7 @@ void loop()
        } else {
             fan_from_Hreg = mb.Hreg(FAN_HREG); //自动模式下，从寄存器读取fan的数值
        }
-        pwm.write(FAN_PIN,map(fan_from_Hreg,0,100,0,4096),frequency, resolution) ; //自动模式下，将fan数值转换后输出到pwm
+        pwm.write(FAN_OUT_PIN,map(fan_from_Hreg,0,100,0,4096),frequency, resolution) ; //自动模式下，将fan数值转换后输出到pwm
 
 
 
@@ -480,14 +484,14 @@ void loop()
 
        heat_from_Hreg = heat_from_enc; //手动模式下，同步数据到寄存器
        mb.Hreg(HEAT_HREG,heat_from_Hreg); //手动模式下，写入寄存器
-       pwm.write(HEAT_PIN, map(heat_from_enc,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
+       pwm.write(HEAT_OUT_PIN, map(heat_from_enc,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
 
 
        //FAN  控制部分 
         fan_from_analog = analogRead(FAN_IN);   //获取模拟量信息
         fan_from_Hreg = map(fan_from_analog,0,1024,0,100); // 模拟量 1024 转为 100 
         mb.Hreg(FAN_HREG,fan_from_Hreg);//手动模式下，写入寄存器
-        pwm.write(FAN_PIN,map(fan_from_Hreg,0,100,0,4096), frequency, resolution);//手动模式下，将fan数值输出到pwm     
+        pwm.write(FAN_OUT_PIN,map(fan_from_Hreg,0,100,0,4096), frequency, resolution);//手动模式下，将fan数值输出到pwm     
 
     }
 

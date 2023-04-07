@@ -42,7 +42,7 @@ extern float BT_CurTemp;
 extern float ET_CurTemp;
 extern String local_IP;
 extern String BT_EVENT;
-extern bool WIFI_STATUS = false; ;
+extern bool WIFI_STATUS  = false ;
 
 static char buffer[32];
 
@@ -50,6 +50,7 @@ static char buffer[32];
 
 void TaskIndicator(void *pvParameters)
 {
+     
     /* Variable Definition */
     (void)pvParameters;
     TickType_t xLastWakeTime;

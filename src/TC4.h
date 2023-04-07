@@ -20,12 +20,16 @@
 
 
 #define VERSION "1.0.0m"
-#define LED_WIFI 4
+#define LED_WIFI 17
 #define RUN_MODE_SELECT 25
-#define ROLL_IN  26
+#define ROLL_IN  34
 #define FAN_IN   35
 #define ENC_CLK  33
 #define ENC_DT   32
+#define PWM_ROLL 27
+#define PWM_FAN  26
+#define PWM_HEAT 14
+
 
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION 12 //0-4096
