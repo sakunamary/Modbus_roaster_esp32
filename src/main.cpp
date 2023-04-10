@@ -156,7 +156,8 @@ const int ROLL_HREG = 3006 ;
 
 //Coil Pins
 const int HEAT_OUT_PIN = PWM_HEAT; //GPIO14
-const int FAN_OUT_PIN = PWM_FAN;  //GPIO12
+const int FAN_OUT_PIN = PWM_FAN;  //GPIO26
+const int  ROLL_OUT_PIN = PWM_ROLL; //GPIO27
 
 
 
@@ -233,6 +234,7 @@ void setup()
     pinMode(LED_WIFI,OUTPUT);
     pinMode(HEAT_OUT_PIN, OUTPUT);
     pinMode(FAN_OUT_PIN, OUTPUT);   
+    pinMode(ROLL_OUT_PIN, OUTPUT);   
     pinMode(RUN_MODE_SELECT,INPUT);
     pinMode(FAN_IN,INPUT);
     digitalWrite(LED_WIFI,LOW);
@@ -377,6 +379,7 @@ if (user_wifi.Init_mode)
     pwm.pause();
     pwm.write(HEAT_OUT_PIN, 0, frequency, resolution);
     pwm.write(FAN_OUT_PIN, 0, frequency, resolution);
+    pwm.write(ROLL_OUT_PIN, 0, frequency, resolution);
     pwm.resume();
     //pwm.printConfig();
     Serial.println("PWM started");  
@@ -385,7 +388,7 @@ if (user_wifi.Init_mode)
 
     Serial.printf("\nStart INPUT ENCODER  service...\n");
 //init ENCODER
-  encoder.attachHalfQuad( ENC_DT,ENC_CLK);
+  encoder.attachHalfQuad( ENC_CLK,ENC_DT);
   encoder.setCount ( 0 );
   Serial.println("Encoder started");  
 
@@ -395,13 +398,15 @@ if (user_wifi.Init_mode)
     // Add SENSOR_IREG register - Use addIreg() for analog Inputs
     mb.addHreg(BT_HREG);
     mb.addHreg(ET_HREG);
-
+    mb.addHreg(AP_HREG);
 
     mb.addHreg(HEAT_HREG);
     mb.addHreg(FAN_HREG);
+    mb.addHreg(ROLL_HREG);
 
     mb.Hreg(HEAT_HREG,0); //初始化赋值
     mb.Hreg(FAN_HREG,0);  //初始化赋值
+    mb.Hreg(ROLL_HREG,0);  //初始化赋值
 
    Serial.println("Modbus-TCP  started");  
 
@@ -451,7 +456,7 @@ void loop()
        timestamp = millis();
     mb.Hreg(BT_HREG,BT_CurTemp);
     mb.Hreg(ET_HREG,ET_CurTemp);
-
+    //mb.Hreg(AP_HREG,ET_CurTemp);
    }
    
    //Serial.printf("HEAT value : %f\n",mb.Hreg(HEAT_IREG));
