@@ -419,12 +419,13 @@ if (user_wifi.Init_mode)
     mb.addHreg(BT_HREG);
     mb.addHreg(ET_HREG);
 
+
+#if defined(HAS_AP_INPUT)   
     mb.addHreg(AP_HREG);
+#endif
 
     mb.addHreg(HEAT_HREG);
     mb.addHreg(FAN_HREG);
-
-
     mb.Hreg(HEAT_HREG,0); //初始化赋值
     mb.Hreg(FAN_HREG,0);  //初始化赋值
 
@@ -481,9 +482,9 @@ void loop()
        timestamp = millis();
     mb.Hreg(BT_HREG,BT_CurTemp);
     mb.Hreg(ET_HREG,ET_CurTemp);
-
-
+#if defined(HAS_AP_INPUT)   
     mb.Hreg(AP_HREG,AP_CurVal);
+#endif
 
    }
    
