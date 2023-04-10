@@ -11,9 +11,6 @@
 #ifndef __TC4_H__
 #define __TC4_H__
 
-#define PRINT_ARTISAN_WHOLE_MESSAGE 1     // set, to print Artisan commands on serial debug port
-#define PRINT_TEAMPERATURE_EACH_READING 1 // Set, to print temperature vaule on serial debug port
-
 
 #define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
 #define BAUDRATE 115200  //serial port baudrate
@@ -41,6 +38,7 @@
   char password[60]; //增加到30个字符
   float  btemp_fix;
   float  etemp_fix;
+  float  ap_fix;
   double sampling_time;//采样时间   单位：s
   bool   Init_mode ; //是否初始化模式
 } user_wifi_t;

@@ -24,6 +24,7 @@
 #include <CAN_config.h>
 float BT_CurTemp;
 float ET_CurTemp;
+float AP_CurVal;
 
 
 CAN_frame_t rx_frame;

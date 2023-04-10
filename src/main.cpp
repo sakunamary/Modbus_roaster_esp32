@@ -134,6 +134,9 @@ uint16_t  heat_from_Hreg = 0;
 uint16_t  heat_from_enc  = 0;
 uint16_t  fan_from_Hreg  = 0;
 uint16_t  fan_from_analog  = 0;
+uint16_t  roll_from_Hreg  = 0;
+uint16_t  roll_from_analog  = 0;
+
 
 bool take_temp = true;
 long timestamp;
@@ -456,7 +459,10 @@ void loop()
        timestamp = millis();
     mb.Hreg(BT_HREG,BT_CurTemp);
     mb.Hreg(ET_HREG,ET_CurTemp);
-    //mb.Hreg(AP_HREG,ET_CurTemp);
+    mb.Hreg(AP_HREG,AP_CurVal);
+
+
+
    }
    
    //Serial.printf("HEAT value : %f\n",mb.Hreg(HEAT_IREG));
@@ -494,6 +500,20 @@ void loop()
         pwm.write(FAN_OUT_PIN,map(fan_from_Hreg,0,100,0,4096),frequency, resolution) ; //自动模式下，将fan数值转换后输出到pwm
 
 
+       //ROLL  控制部分 
+       if(mb.Hreg(ROLL_HREG) <= 0){ //自动模式下，寄存器值限制在0
+            roll_from_Hreg = 0;
+            mb.Hreg(ROLL_HREG,roll_from_Hreg); //寄存器重新赋值为0
+
+       }else if (mb.Hreg(ROLL_HREG) >= 100){ //自动模式下，寄存器值限制在0
+            roll_from_Hreg =100 ;
+            mb.Hreg(ROLL_HREG,roll_from_Hreg);
+       } else {
+            roll_from_Hreg = mb.Hreg(ROLL_HREG); //自动模式下，从寄存器读取fan的数值
+       }
+        pwm.write(ROLL_OUT_PIN,map(roll_from_Hreg,0,100,0,4096),frequency, resolution) ; //自动模式下，将fan数值转换后输出到pwm
+
+
 
     } else {//手动模式
        //HEAT 控制部分 
@@ -518,6 +538,17 @@ void loop()
         fan_from_Hreg = map(fan_from_analog,0,1024,0,100); // 模拟量 1024 转为 100 
         mb.Hreg(FAN_HREG,fan_from_Hreg);//手动模式下，写入寄存器
         pwm.write(FAN_OUT_PIN,map(fan_from_Hreg,0,100,0,4096), frequency, resolution);//手动模式下，将fan数值输出到pwm     
+
+       //ROLL  控制部分 
+        roll_from_analog = analogRead(ROLL_IN);   //获取模拟量信息
+        roll_from_Hreg = map(roll_from_analog,0,1024,0,100); // 模拟量 1024 转为 100 
+        mb.Hreg(ROLL_HREG,roll_from_Hreg);//手动模式下，写入寄存器
+        pwm.write(ROLL_OUT_PIN,map(roll_from_Hreg,0,100,0,4096), frequency, resolution);//手动模式下，将fan数值输出到pwm     
+
+
+
+
+
 
     }
 
