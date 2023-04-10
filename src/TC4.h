@@ -12,11 +12,21 @@
 #define __TC4_H__
 
 
+//modules settings
+#define ROLL_CONTROL
+#define HAS_AP_INPUT
+
+
+#if defined(ROLL_CONTROL)
+    #define VERSION "1.0.0r"
+#endif    
+
+
+//
 #define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
 #define BAUDRATE 115200  //serial port baudrate
 
-
-#define VERSION "1.0.0m"
+//pinout setting
 #define LED_WIFI 17
 #define RUN_MODE_SELECT 25
 #define ROLL_IN  34
@@ -27,7 +37,7 @@
 #define PWM_FAN  26
 #define PWM_HEAT 14
 
-
+//pwm setting 
 #define PWM_FREQ 10000
 #define PWM_RESOLUTION 12 //0-4096
 
@@ -132,7 +142,7 @@ const char index_html[] PROGMEM = R"rawliteral(
         <form action='/compens' method='get'>                
             <br/>
             <br/>
-            <h2 class=''>THERMO COMPENSATE SETUP <br/>电偶温度补偿设置</h2>
+            <h2 class=''>THERMO COMPENSATE SETUP <br/>温度补偿设置</h2>
             <div class='form-floating'>
             <label>Bean Temp/豆温 (current: %bt_compens%) </label>
             <input type='number' step = '0.01' max = '20' min='-20' class='form-control'  name='Btemp_fix'> 
@@ -141,6 +151,11 @@ const char index_html[] PROGMEM = R"rawliteral(
             <div class='form-floating'>
             <label>Env  Temp/炉温 (current:%et_compens%)</label>
             <input type='number' step = '0.01' max = '20' min='-20' class='form-control' name='Etemp_fix'> 
+            </div>
+            <br/>
+            <div class='form-floating'>
+            <label>Air Presure/气压 (current:%AP_compens%)</label>
+            <input type='number' step = '1' max = '20' min='-20' class='form-control' name='Ap_fix'> 
             </div>
             <br/>
             <button type='submit'onclick="submitMessage()">SAVE</button>

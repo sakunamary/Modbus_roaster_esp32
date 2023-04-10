@@ -109,7 +109,7 @@
 // Define three tasks
 extern void TaskIndicator(void *pvParameters);
 extern void TaskThermalMeter(void *pvParameters);
-//extern void TaskBatCheck(void *pvParameters);
+
 
 // define other functions
 String IpAddressToString(const IPAddress &ipAddress);                         //转换IP地址格式
@@ -185,7 +185,7 @@ ESP32Encoder encoder;
      vTaskSuspend( xHandle );
 
 */
-user_wifi_t user_wifi = {" ", " ", 0.0, 0.0, 1.0,true};
+user_wifi_t user_wifi = {" ", " ", 0.0, 0.0,0.0, 1.0,true};
 
 // object declare
 AsyncWebServer server_OTA(80);
@@ -210,6 +210,10 @@ String processor(const String &var)
     {
         return String(user_wifi.etemp_fix);
     }
+    else if (var == "AP_compens")
+    {
+        return String(user_wifi.ap_fix);
+    }
     else if (var == "version")
     {
         return VERSION;
@@ -232,14 +236,18 @@ void notFound(AsyncWebServerRequest *request)
 void setup()
 {
     xThermoDataMutex = xSemaphoreCreateMutex();
-    //xIndicatorDataMutex = xSemaphoreCreateMutex();
+
 
     pinMode(LED_WIFI,OUTPUT);
     pinMode(HEAT_OUT_PIN, OUTPUT);
     pinMode(FAN_OUT_PIN, OUTPUT);   
-    pinMode(ROLL_OUT_PIN, OUTPUT);   
     pinMode(RUN_MODE_SELECT,INPUT);
     pinMode(FAN_IN,INPUT);
+
+#if defined(ROLL_CONTROL)
+    pinMode(ROLL_OUT_PIN, OUTPUT);   
+    pinMode(ROLL_IN,INPUT);
+#endif     
     digitalWrite(LED_WIFI,LOW);
 
     // Initialize serial communication at 115200 bits per second:
@@ -265,6 +273,7 @@ if (user_wifi.Init_mode)
     user_wifi.sampling_time = 0.75; 
     user_wifi.btemp_fix = 0;
     user_wifi.etemp_fix = 0;
+    user_wifi.ap_fix = 0 ;
     EEPROM.put(0, user_wifi);
     EEPROM.commit();
 }
@@ -282,11 +291,11 @@ if (user_wifi.Init_mode)
 
         delay(1000);
 
-        if (tries++ > 8)
+        if (tries++ > 7)
         {
             // Serial_debug.println("WiFi.mode(AP):");
             WiFi.mode(WIFI_AP);
-            sprintf( ap_name ,"TC4-THRMO-%02x%02x",macAddr[4],macAddr[5]);
+            sprintf( ap_name ,"TC4-THRMO-%02X%02X%02X",macAddr[2],macAddr[1],macAddr[0]);
             WiFi.softAP(ap_name, "12345678"); // defualt IP address :192.168.4.1 password min 8 digis
             break;
         }
@@ -338,6 +347,12 @@ if (user_wifi.Init_mode)
                       {
                           user_wifi.etemp_fix = request->getParam("Etemp_fix")->value().toFloat();
                       }
+#if defined(HAS_AP_INPUT)   
+                      if (request->getParam("Ap_fix")->value() != "")
+                      {
+                          user_wifi.ap_fix = request->getParam("Ap_fix")->value().toFloat();
+                      }
+#endif 
                       // Svae EEPROM
                       EEPROM.put(0, user_wifi);
                       EEPROM.commit();
@@ -382,7 +397,9 @@ if (user_wifi.Init_mode)
     pwm.pause();
     pwm.write(HEAT_OUT_PIN, 0, frequency, resolution);
     pwm.write(FAN_OUT_PIN, 0, frequency, resolution);
+#if defined(ROLL_CONTROL)    
     pwm.write(ROLL_OUT_PIN, 0, frequency, resolution);
+#endif    
     pwm.resume();
     //pwm.printConfig();
     Serial.println("PWM started");  
@@ -401,15 +418,20 @@ if (user_wifi.Init_mode)
     // Add SENSOR_IREG register - Use addIreg() for analog Inputs
     mb.addHreg(BT_HREG);
     mb.addHreg(ET_HREG);
+
     mb.addHreg(AP_HREG);
 
     mb.addHreg(HEAT_HREG);
     mb.addHreg(FAN_HREG);
-    mb.addHreg(ROLL_HREG);
+
 
     mb.Hreg(HEAT_HREG,0); //初始化赋值
     mb.Hreg(FAN_HREG,0);  //初始化赋值
+
+#if defined(ROLL_CONTROL)   
+    mb.addHreg(ROLL_HREG);   
     mb.Hreg(ROLL_HREG,0);  //初始化赋值
+#endif    
 
    Serial.println("Modbus-TCP  started");  
 
@@ -459,9 +481,9 @@ void loop()
        timestamp = millis();
     mb.Hreg(BT_HREG,BT_CurTemp);
     mb.Hreg(ET_HREG,ET_CurTemp);
+
+
     mb.Hreg(AP_HREG,AP_CurVal);
-
-
 
    }
    
@@ -499,7 +521,7 @@ void loop()
        }
         pwm.write(FAN_OUT_PIN,map(fan_from_Hreg,0,100,0,4096),frequency, resolution) ; //自动模式下，将fan数值转换后输出到pwm
 
-
+#if defined(ROLL_CONTROL)   
        //ROLL  控制部分 
        if(mb.Hreg(ROLL_HREG) <= 0){ //自动模式下，寄存器值限制在0
             roll_from_Hreg = 0;
@@ -512,7 +534,7 @@ void loop()
             roll_from_Hreg = mb.Hreg(ROLL_HREG); //自动模式下，从寄存器读取fan的数值
        }
         pwm.write(ROLL_OUT_PIN,map(roll_from_Hreg,0,100,0,4096),frequency, resolution) ; //自动模式下，将fan数值转换后输出到pwm
-
+#endif
 
 
     } else {//手动模式
@@ -539,18 +561,13 @@ void loop()
         mb.Hreg(FAN_HREG,fan_from_Hreg);//手动模式下，写入寄存器
         pwm.write(FAN_OUT_PIN,map(fan_from_Hreg,0,100,0,4096), frequency, resolution);//手动模式下，将fan数值输出到pwm     
 
+#if defined(ROLL_CONTROL)   
        //ROLL  控制部分 
         roll_from_analog = analogRead(ROLL_IN);   //获取模拟量信息
         roll_from_Hreg = map(roll_from_analog,0,1024,0,100); // 模拟量 1024 转为 100 
         mb.Hreg(ROLL_HREG,roll_from_Hreg);//手动模式下，写入寄存器
         pwm.write(ROLL_OUT_PIN,map(roll_from_Hreg,0,100,0,4096), frequency, resolution);//手动模式下，将fan数值输出到pwm     
-
-
-
-
-
+#endif
 
     }
-
-
 }
