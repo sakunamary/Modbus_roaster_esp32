@@ -27,7 +27,7 @@
 #define BAUDRATE 115200  //serial port baudrate
 
 //pinout setting
-#define LED_WIFI 17
+#define LED_WIFI 18
 #define RUN_MODE_SELECT 25
 #define ROLL_IN  34
 #define FAN_IN   35
@@ -36,6 +36,9 @@
 #define PWM_ROLL 27
 #define PWM_FAN  26
 #define PWM_HEAT 14
+#define RXD2     16
+#define TXD      17
+
 
 //pwm setting 
 #define PWM_FREQ 10000

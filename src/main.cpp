@@ -235,6 +235,26 @@ void notFound(AsyncWebServerRequest *request)
 
 void setup()
 {
+
+ Serial.begin(BAUDRATE);
+    while (!Serial)
+    {
+        ; // wait for serial port ready
+    }
+
+    Serial.printf("\nArti-Mod  STARTING...\n");
+
+    Serial2.begin(BAUDRATE) ;
+
+    while (!Serial2)
+    {
+        vTaskDelay(1000); // wait for serial port ready
+        Serial.printf("\nSerial2 STARTING...\n");
+    }
+        Serial.printf("\nSerial2 OK!\n");
+
+    Serial.printf("\nSetting INIT PINOUT ...\n");
+
     xThermoDataMutex = xSemaphoreCreateMutex();
 
 
@@ -250,14 +270,6 @@ void setup()
 #endif     
     digitalWrite(LED_WIFI,LOW);
 
-    // Initialize serial communication at 115200 bits per second:
-    Serial.begin(BAUDRATE);
-    while (!Serial)
-    {
-        ; // wait for serial port ready
-    }
-
-    Serial.printf("\nArti-Mod  STARTING...\n");
 
     Serial.printf("\nREAD data from EEPROM...\n");
     // set up eeprom data
@@ -318,7 +330,7 @@ if (user_wifi.Init_mode)
         WIFI_STATUS=true;
         digitalWrite(LED_WIFI,HIGH);
     }
-
+    Serial.println('');
     // for index.html
     server_OTA.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
                   { request->send_P(200, "text/html", index_html, processor); });
@@ -464,12 +476,6 @@ timestamp=millis();
         ,
         &xHandle_indicator, 1 // Running Core decided by FreeRTOS , let core0 run wifi and BT
     );
-
-
-
-
-
-
 
 }
 
