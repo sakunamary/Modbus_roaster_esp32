@@ -444,15 +444,15 @@ if (user_wifi.Init_mode)
 
                       if (request->getParam("thermo_msgID")->value() != "")
                       {
-                          user_wifi.Thermo_msgID = request->getParam("thermo_msgID")->value().toInt();
+                          user_wifi.Thermo_msgID = request->getParam("thermo_msgID")->value();
                       }
                       if (request->getParam("air_msgID")->value() != "")
                       {
-                          user_wifi.Airpressure_msgID = request->getParam("air_msgID")->value().toInt();
+                          user_wifi.Airpressure_msgID = request->getParam("air_msgID")->value();
                       }
                       if (request->getParam("PWMOUT_msgID")->value() != "")
                       {
-                          user_wifi.PWMoutput_msgID = request->getParam("PWMOUT_msgID")->value().toInt();
+                          user_wifi.PWMoutput_msgID = request->getParam("PWMOUT_msgID")->value();
                       }
 
                       
