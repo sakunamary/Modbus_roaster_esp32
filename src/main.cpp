@@ -168,7 +168,6 @@ const int  ROLL_OUT_PIN = PWM_ROLL; //GPIO27
 //ModbusIP object
 ModbusIP mb;
 
-
 //pwm object 
 Pwm pwm = Pwm();
 
@@ -402,6 +401,20 @@ if (user_wifi.Init_mode)
                       EEPROM.put(0, user_wifi);
                       EEPROM.commit();
                   });
+
+    server_OTA.on("/canbus", HTTP_GET, [](AsyncWebServerRequest *request)
+                  {
+                      // get value form webpage
+                      if (request->getParam("sampling_time")->value() != "")
+                      {
+                          user_wifi.sampling_time = request->getParam("sampling_time")->value().toFloat();
+                      }
+                      // Svae EEPROM
+                      EEPROM.put(0, user_wifi);
+                      EEPROM.commit();
+                  });
+
+
 
     server_OTA.onNotFound(notFound); // 404 page seems not necessary...
 
