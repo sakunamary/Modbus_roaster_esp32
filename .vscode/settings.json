@@ -28,5 +28,6 @@
         "optional": "cpp",
         "system_error": "cpp",
         "regex": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/.pio/libdeps/nodemcu-32s/AsyncTCP-esphome"
 }
