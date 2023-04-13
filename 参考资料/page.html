@@ -2,7 +2,7 @@
 <head>
 <script>
   function submitMessage() {
-    alert("VALUE SAVED  数据已保存");
+    alert("数据已保存");
     setTimeout(function(){ document.location.reload(false); }, 500);
   }
 </script>
@@ -80,33 +80,33 @@
             <br/>
             <h2 class=''>传感器模块设置</h2>
             <div class='form-floating'>
-                <label>温度传感器CanID (当前ID: %bt_compens%) </label>
-                <input type='text'  class='form-control'  name='Btemp_fix'> 
+                <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
+                <input type='text'  class='form-control'  name='thermo_msgID'> 
                 </div>
                 <br/>
                 <div class='form-floating'>
-                <label>风压传感器CanID (当前ID:%et_compens%)</label>
-                <input type='text'  class='form-control' name='Etemp_fix'> 
+                <label>风压传感器CanID (当前ID:%air_msgID_compens%)</label>
+                <input type='text'  class='form-control' name='air_msgID'> 
                 </div>
                 <br/>
                 <div class='form-floating'>
-                <label>PWM输出模块CanID (当前ID:%AP_compens%)</label>
-                <input type='text'  class='form-control' name='Ap_fix'> 
+                <label>PWM输出模块CanID (当前ID:%PWMOUT_msgID_compens%)</label>
+                <input type='text'  class='form-control' name='PWMOUT_msgID'> 
                 </div>
                 <br/>
                 <div class='form-floating'>
-                    <label>热源PWM频率 (当前Hz:%AP_compens%)</label>
-                    <input type='text'  class='form-control' name='Ap_fix'> 
+                    <label>热源PWM频率 (当前Hz:%HEAT_PWM_compens%)</label>
+                    <input type='number' step = '100' max = '3000' min='0' class='form-control' name='HEAT_PWM'> 
                     </div>
                     <br/>
                 <div class='form-floating'>
-                    <label>风门PWM频率 (当前Hz:%AP_compens%)</label>
-                    <input type='text'  class='form-control' name='Ap_fix'> 
+                    <label>风门PWM频率 (当前Hz:%FAN_PWM_compens%)</label>
+                    <input type='number'  step = '100' max = '3000' min='0'class='form-control' name='FAN_PWM'> 
                     </div>
                     <br/>
                 <div class='form-floating'>
-                    <label>滚桶PWM频率 (当前Hz:%AP_compens%)</label>
-                    <input type='text'  class='form-control' name='Ap_fix'> 
+                    <label>滚桶PWM频率 (当前Hz:%ROLL_PWM_compens%)</label>
+                    <input type='number'  step = '100' max = '3000' min='0' class='form-control' name='ROLL_PWM'> 
                     </div>
                     <br/>                                            
                 <button type='submit'onclick="submitMessage()">保存</button>

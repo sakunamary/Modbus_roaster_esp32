@@ -213,7 +213,7 @@ String IpAddressToString(const IPAddress &ipAddress)
            String(ipAddress[3]);
 }
 
-String processor(const String &var)
+String processor(const String &var) //返回当前值到html页面
 {
     Serial.println(var);
     if (var == "bt_compens")
@@ -236,7 +236,31 @@ String processor(const String &var)
     { //
         return String(user_wifi.sampling_time);
     }
- 
+    else if (var == "thermo_msgID_compens")
+    { //
+        return String(user_wifi.Thermo_msgID);
+    }
+     else if (var == "air_msgID_compens")
+    { //
+        return String(user_wifi.Airpressure_msgID);
+    }
+     else if (var == "PWMOUT_msgID_compens")
+    { //
+        return String(user_wifi.PWMoutput_msgID);
+    }
+     else if (var == "HEAT_PWM_compens")
+    { //
+        return String(user_wifi.PWM_FREQ_HEAT);
+    }
+     else if (var == "FAN_PWM_compens")
+    { //
+        return String(user_wifi.PWM_FREQ_FAN);
+    }    
+     else if (var == "ROLL_PWM_compens")
+    { //
+        return String(user_wifi.PWM_FREQ_ROLL);
+    }
+
     return String();
 }
 
@@ -405,10 +429,33 @@ if (user_wifi.Init_mode)
     server_OTA.on("/canbus", HTTP_GET, [](AsyncWebServerRequest *request)
                   {
                       // get value form webpage
-                      if (request->getParam("sampling_time")->value() != "")
+                      if (request->getParam("HEAT_PWM")->value() != "")
                       {
-                          user_wifi.sampling_time = request->getParam("sampling_time")->value().toFloat();
+                          user_wifi.PWM_FREQ_HEAT = request->getParam("HEAT_PWM")->value().toInt();
                       }
+                      if (request->getParam("FAN_PWM")->value() != "")
+                      {
+                          user_wifi.PWM_FREQ_FAN = request->getParam("FAN_PWM")->value().toInt();
+                      }
+                      if (request->getParam("ROLL_PWM")->value() != "")
+                      {
+                          user_wifi.PWM_FREQ_ROLL = request->getParam("ROLL_PWM")->value().toInt();
+                      }
+
+                      if (request->getParam("thermo_msgID")->value() != "")
+                      {
+                          user_wifi.Thermo_msgID = request->getParam("thermo_msgID")->value().toInt();
+                      }
+                      if (request->getParam("air_msgID")->value() != "")
+                      {
+                          user_wifi.Airpressure_msgID = request->getParam("air_msgID")->value().toInt();
+                      }
+                      if (request->getParam("PWMOUT_msgID")->value() != "")
+                      {
+                          user_wifi.PWMoutput_msgID = request->getParam("PWMOUT_msgID")->value().toInt();
+                      }
+
+                      
                       // Svae EEPROM
                       EEPROM.put(0, user_wifi);
                       EEPROM.commit();
