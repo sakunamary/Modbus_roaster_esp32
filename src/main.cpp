@@ -141,7 +141,7 @@ uint16_t  roll_from_analog  = 0;
 bool take_temp = true;
 long timestamp;
 
-const uint32_t frequency = PWM_FREQ;
+//const uint32_t frequency = PWM_FREQ;
 const byte resolution = PWM_RESOLUTION; //pwm -0-4096
 
 int encoder_postion ;
@@ -185,8 +185,23 @@ ESP32Encoder encoder;
      vTaskSuspend( xHandle );
 
 */
-user_wifi_t user_wifi = {" ", " ", 0.0, 0.0,0.0, 1.0,true};
+user_wifi_t user_wifi = {
 
+                        " ",  //char ssid[60]; //增加到30个字符
+                        " ", //char password[60]; //增加到30个字符
+                        0.0, //float  btemp_fix;
+                        0.0, //float  etemp_fix;
+                        0.0, //float  ap_fix;
+                        0x00, //uint32_t Thermo_msgID;
+                        0x00, //uint32_t Airpressure_msgID;
+                        0x00, //uint32_t PWMoutput_msgID;
+                        PWM_FREQ, //int PWM_FREQ_HEAT;
+                        PWM_FREQ, //int PWM_FREQ_FAN;
+                        PWM_FREQ, //int PWM_FREQ_ROLL;
+                        1.0, //double sampling_time;//采样时间   单位：s
+                        false //bool   Init_mode ; //是否初始化模式
+                        };
+ 
 // object declare
 AsyncWebServer server_OTA(80);
 
@@ -286,6 +301,12 @@ if (user_wifi.Init_mode)
     user_wifi.btemp_fix = 0;
     user_wifi.etemp_fix = 0;
     user_wifi.ap_fix = 0 ;
+    user_wifi.Thermo_msgID =0x00;
+    user_wifi.Airpressure_msgID=0x00;
+    user_wifi.PWMoutput_msgID=0x00;
+    user_wifi.PWM_FREQ_HEAT = PWM_FREQ;
+    user_wifi.PWM_FREQ_ROLL = PWM_FREQ;
+    user_wifi.PWM_FREQ_FAN =PWM_FREQ;
     EEPROM.put(0, user_wifi);
     EEPROM.commit();
 }
@@ -307,7 +328,7 @@ if (user_wifi.Init_mode)
         {
             // Serial_debug.println("WiFi.mode(AP):");
             WiFi.mode(WIFI_AP);
-            sprintf( ap_name ,"TC4-THRMO-%02X%02X%02X",macAddr[2],macAddr[1],macAddr[0]);
+            sprintf( ap_name ,"MODBUS-%02X%02X%02X",macAddr[2],macAddr[1],macAddr[0]);
             WiFi.softAP(ap_name, "12345678"); // defualt IP address :192.168.4.1 password min 8 digis
             break;
         }
@@ -330,7 +351,7 @@ if (user_wifi.Init_mode)
         WIFI_STATUS=true;
         digitalWrite(LED_WIFI,HIGH);
     }
-    Serial.println('');
+    Serial.println("");
     // for index.html
     server_OTA.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
                   { request->send_P(200, "text/html", index_html, processor); });
@@ -407,10 +428,10 @@ if (user_wifi.Init_mode)
     Serial.printf("\nStart OUTPUT PWM  service...\n");
 //Init pwm output
     pwm.pause();
-    pwm.write(HEAT_OUT_PIN, 0, frequency, resolution);
-    pwm.write(FAN_OUT_PIN, 0, frequency, resolution);
+    pwm.write(HEAT_OUT_PIN, 0, user_wifi.PWM_FREQ_HEAT, resolution);
+    pwm.write(FAN_OUT_PIN, 0, user_wifi.PWM_FREQ_FAN, resolution);
 #if defined(ROLL_CONTROL)    
-    pwm.write(ROLL_OUT_PIN, 0, frequency, resolution);
+    pwm.write(ROLL_OUT_PIN, 0, user_wifi.PWM_FREQ_ROLL, resolution);
 #endif    
     pwm.resume();
     //pwm.printConfig();
@@ -512,7 +533,7 @@ void loop()
        }
 
        heat_from_enc = heat_from_Hreg ; //自动模式下，同步数据到encoder
-       pwm.write(HEAT_OUT_PIN, map(heat_from_Hreg,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
+       pwm.write(HEAT_OUT_PIN, map(heat_from_Hreg,0,100,0,4096), user_wifi.PWM_FREQ_HEAT, resolution); //自动模式下，将heat数值转换后输出到pwm
 
 
        //FAN  控制部分 
@@ -526,7 +547,7 @@ void loop()
        } else {
             fan_from_Hreg = mb.Hreg(FAN_HREG); //自动模式下，从寄存器读取fan的数值
        }
-        pwm.write(FAN_OUT_PIN,map(fan_from_Hreg,0,100,0,4096),frequency, resolution) ; //自动模式下，将fan数值转换后输出到pwm
+        pwm.write(FAN_OUT_PIN,map(fan_from_Hreg,0,100,0,4096),user_wifi.PWM_FREQ_FAN, resolution) ; //自动模式下，将fan数值转换后输出到pwm
 
 #if defined(ROLL_CONTROL)   
        //ROLL  控制部分 
@@ -540,7 +561,7 @@ void loop()
        } else {
             roll_from_Hreg = mb.Hreg(ROLL_HREG); //自动模式下，从寄存器读取fan的数值
        }
-        pwm.write(ROLL_OUT_PIN,map(roll_from_Hreg,0,100,0,4096),frequency, resolution) ; //自动模式下，将fan数值转换后输出到pwm
+        pwm.write(ROLL_OUT_PIN,map(roll_from_Hreg,0,100,0,4096),user_wifi.PWM_FREQ_ROLL, resolution) ; //自动模式下，将fan数值转换后输出到pwm
 #endif
 
 
@@ -559,21 +580,21 @@ void loop()
 
        heat_from_Hreg = heat_from_enc; //手动模式下，同步数据到寄存器
        mb.Hreg(HEAT_HREG,heat_from_Hreg); //手动模式下，写入寄存器
-       pwm.write(HEAT_OUT_PIN, map(heat_from_enc,0,100,0,4096), frequency, resolution); //自动模式下，将heat数值转换后输出到pwm
+       pwm.write(HEAT_OUT_PIN, map(heat_from_enc,0,100,0,4096), user_wifi.PWM_FREQ_HEAT, resolution); //自动模式下，将heat数值转换后输出到pwm
 
 
        //FAN  控制部分 
         fan_from_analog = analogRead(FAN_IN);   //获取模拟量信息
         fan_from_Hreg = map(fan_from_analog,0,1024,0,100); // 模拟量 1024 转为 100 
         mb.Hreg(FAN_HREG,fan_from_Hreg);//手动模式下，写入寄存器
-        pwm.write(FAN_OUT_PIN,map(fan_from_Hreg,0,100,0,4096), frequency, resolution);//手动模式下，将fan数值输出到pwm     
+        pwm.write(FAN_OUT_PIN,map(fan_from_Hreg,0,100,0,4096), user_wifi.PWM_FREQ_FAN, resolution);//手动模式下，将fan数值输出到pwm     
 
 #if defined(ROLL_CONTROL)   
        //ROLL  控制部分 
         roll_from_analog = analogRead(ROLL_IN);   //获取模拟量信息
         roll_from_Hreg = map(roll_from_analog,0,1024,0,100); // 模拟量 1024 转为 100 
         mb.Hreg(ROLL_HREG,roll_from_Hreg);//手动模式下，写入寄存器
-        pwm.write(ROLL_OUT_PIN,map(roll_from_Hreg,0,100,0,4096), frequency, resolution);//手动模式下，将fan数值输出到pwm     
+        pwm.write(ROLL_OUT_PIN,map(roll_from_Hreg,0,100,0,4096), user_wifi.PWM_FREQ_ROLL, resolution);//手动模式下，将fan数值输出到pwm     
 #endif
 
     }

@@ -100,7 +100,7 @@ void TaskIndicator(void *pvParameters)
             xSemaphoreGive(xThermoDataMutex);
 
             //显示IP地址和蓝牙状态
-            display.drawXbm(0, 32, 16, 16, WIFI_LOGO);
+            display.drawXbm(0, 48, 16, 16, WIFI_LOGO);
             
             display.drawString(2 + 16, 54,"IP:");
             display.drawString(2 + 30, 54,local_IP);

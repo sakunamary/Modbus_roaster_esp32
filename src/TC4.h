@@ -41,7 +41,7 @@
 
 
 //pwm setting 
-#define PWM_FREQ 10000
+#define PWM_FREQ 2000
 #define PWM_RESOLUTION 12 //0-4096
 
 // 网页设置的参数
@@ -52,6 +52,12 @@
   float  btemp_fix;
   float  etemp_fix;
   float  ap_fix;
+  uint32_t Thermo_msgID;
+  uint32_t Airpressure_msgID;
+  uint32_t PWMoutput_msgID;
+   int PWM_FREQ_HEAT;
+   int PWM_FREQ_FAN;
+   int PWM_FREQ_ROLL;
   double sampling_time;//采样时间   单位：s
   bool   Init_mode ; //是否初始化模式
 } user_wifi_t;
