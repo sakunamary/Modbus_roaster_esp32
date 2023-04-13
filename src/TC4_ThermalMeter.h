@@ -62,7 +62,7 @@ void TaskThermalMeter(void *pvParameters)
                  } 
             }
 #if defined(HAS_AP_INPUT)
-            if (rx_frame.MsgID == 0xE6 && rx_frame.FIR.B.DLC == 8){ //airpress 
+            if (rx_frame.MsgID == 0x0E6 && rx_frame.FIR.B.DLC == 8){ //airpress 
                 if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS)
                 {
                     AP_CurVal=(rx_frame.data.u32[0]+  user_wifi.ap_fix)*100 ;

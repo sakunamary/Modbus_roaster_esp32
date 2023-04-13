@@ -324,9 +324,9 @@ if (user_wifi.Init_mode)
     user_wifi.btemp_fix = 0;
     user_wifi.etemp_fix = 0;
     user_wifi.ap_fix = 0 ;
-    user_wifi.Thermo_msgID =0x00;
-    user_wifi.Airpressure_msgID=0x00;
-    user_wifi.PWMoutput_msgID=0x00;
+    user_wifi.Thermo_msgID =0x0F6;
+    user_wifi.Airpressure_msgID=0x0E6;
+    user_wifi.PWMoutput_msgID=0x0D6;
     user_wifi.PWM_FREQ_HEAT = PWM_FREQ;
     user_wifi.PWM_FREQ_ROLL = PWM_FREQ;
     user_wifi.PWM_FREQ_FAN =PWM_FREQ;
@@ -441,20 +441,20 @@ if (user_wifi.Init_mode)
                       {
                           user_wifi.PWM_FREQ_ROLL = request->getParam("ROLL_PWM")->value().toInt();
                       }
-
+/*
                       if (request->getParam("thermo_msgID")->value() != "")
                       {
-                          user_wifi.Thermo_msgID = request->getParam("thermo_msgID")->value();
+                          user_wifi.Thermo_msgID = request->getParam("thermo_msgID")->value().toInt();
                       }
                       if (request->getParam("air_msgID")->value() != "")
                       {
-                          user_wifi.Airpressure_msgID = request->getParam("air_msgID")->value();
+                          user_wifi.Airpressure_msgID = request->getParam("air_msgID")->value().toInt();
                       }
                       if (request->getParam("PWMOUT_msgID")->value() != "")
                       {
-                          user_wifi.PWMoutput_msgID = request->getParam("PWMOUT_msgID")->value();
+                          user_wifi.PWMoutput_msgID = request->getParam("PWMOUT_msgID")->value().toInt();
                       }
-
+*/
                       
                       // Svae EEPROM
                       EEPROM.put(0, user_wifi);

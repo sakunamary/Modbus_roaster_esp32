@@ -96,7 +96,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
 <script>
   function submitMessage() {
-    alert("VALUE SAVED  数据已保存");
+    alert("数据已保存");
     setTimeout(function(){ document.location.reload(false); }, 500);
   }
 </script>
@@ -131,8 +131,8 @@ const char index_html[] PROGMEM = R"rawliteral(
 <body>
     <main class='form-signin'> 
         <form action='/get' method='get'>
-            <h1 class=''>Arti-Mod SETTING </h1>
-            <h2 class=''>WIFI SETUP </h2>
+            <h1 class=''>MODBUS CONTROLER SETTING </h1>
+            <h2 class=''>WIFI设置 </h2>
             <div class='form-floating'>
             <label>SSID/WIFI名字</label>
             <input type='text' class='form-control' name='ssid'> 
@@ -142,44 +142,81 @@ const char index_html[] PROGMEM = R"rawliteral(
             <label>PASSWORD</label>
             <input type='password' class='form-control' name='password'>
             </div>
-            <p>NOTICE:INPUT NULL will set back to AP mode <br/>
+            <p>
             提示:输入空白即恢复AP模式直链模式
             </p>
             <br/>
-            <button type='submit'>SAVE WIFI INFO </button>
+            <button type='submit'>保存</button>
         </form>     
         <form action='/compens' method='get'>                
             <br/>
             <br/>
-            <h2 class=''>THERMO COMPENSATE SETUP <br/>温度补偿设置</h2>
+            <h2 class=''>热电偶温度补偿设置</h2>
             <div class='form-floating'>
-            <label>Bean Temp/豆温 (current: %bt_compens%) </label>
+            <label>Bean Temp/豆温 (当前值: %bt_compens%) </label>
             <input type='number' step = '0.01' max = '20' min='-20' class='form-control'  name='Btemp_fix'> 
             </div>
             <br/>
             <div class='form-floating'>
-            <label>Env  Temp/炉温 (current:%et_compens%)</label>
+            <label>Env  Temp/炉温 (当前值:%et_compens%)</label>
             <input type='number' step = '0.01' max = '20' min='-20' class='form-control' name='Etemp_fix'> 
             </div>
             <br/>
             <div class='form-floating'>
-            <label>Air Presure/气压 (current:%AP_compens%)</label>
-            <input type='number' step = '1' max = '20' min='-20' class='form-control' name='Ap_fix'> 
+            <label>Air Presure/风压差 (当前值:%AP_compens%)</label>
+            <input type='number' step = '0.1' max = '20' min='-20' class='form-control' name='Ap_fix'> 
             </div>
             <br/>
-            <button type='submit'onclick="submitMessage()">SAVE</button>
+            <button type='submit'onclick="submitMessage()">保存</button>
         </form> 
+        <form action='/canbus' method='get'> 
+            <br/>
+            <br/>
+            <h2 class=''>传感器模块设置</h2>
+            <div class='form-floating'>
+                <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
+                <input type='text'  class='form-control'  name='thermo_msgID'> 
+                </div>
+                <br/>
+                <div class='form-floating'>
+                <label>风压传感器CanID (当前ID:%air_msgID_compens%)</label>
+                <input type='text'  class='form-control' name='air_msgID'> 
+                </div>
+                <br/>
+                <div class='form-floating'>
+                <label>PWM输出模块CanID (当前ID:%PWMOUT_msgID_compens%)</label>
+                <input type='text'  class='form-control' name='PWMOUT_msgID'> 
+                </div>
+                <br/>
+                <div class='form-floating'>
+                    <label>热源PWM频率 (当前Hz:%HEAT_PWM_compens%)</label>
+                    <input type='number' step = '100' max = '3000' min='0' class='form-control' name='HEAT_PWM'> 
+                    </div>
+                    <br/>
+                <div class='form-floating'>
+                    <label>风门PWM频率 (当前Hz:%FAN_PWM_compens%)</label>
+                    <input type='number'  step = '100' max = '3000' min='0'class='form-control' name='FAN_PWM'> 
+                    </div>
+                    <br/>
+                <div class='form-floating'>
+                    <label>滚桶PWM频率 (当前Hz:%ROLL_PWM_compens%)</label>
+                    <input type='number'  step = '100' max = '3000' min='0' class='form-control' name='ROLL_PWM'> 
+                    </div>
+                    <br/>                                            
+                <button type='submit'onclick="submitMessage()">保存</button>
+
+        </form>              
         <form action='/other' method='get'>   
             <br/>
             <br/>
             <div class='form-floating'>
-            <h2 class=''>OTHER SETTING <br/>杂项</h2>  
-            <label>Sampling 采样时间 (current: %sampling_time%) s</label>
+            <h2 class=''>其他设置</h2>  
+            <label>采样时间 (当前值: %sampling_time%) s</label>
             <input type='number' step = '0.25' max = '4' min='0.75' class='form-control'  name='sampling_time'> 
             </div>
             <br/>
   
-            <button type='submit'onclick="submitMessage()">SAVE</button>
+            <button type='submit'onclick="submitMessage()">保存</button>
         </form> 
             <p>
             <a href='/update' target='_blank'>FIRMWARE UPDATE verison:%version%</a>
