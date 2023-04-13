@@ -40,6 +40,7 @@ SSD1306Wire display(SCREEN_ADDRESS, SDA, SCL);   // ADDRESS, SDA, SCL  -  SDA an
 
 extern float BT_CurTemp;
 extern float ET_CurTemp;
+extern float AP_CurVal;
 extern String local_IP;
 extern String BT_EVENT;
 extern bool WIFI_STATUS  = false ;
@@ -87,18 +88,23 @@ void TaskIndicator(void *pvParameters)
 
             display.drawXbm(0, 0, 16, 16, BEAN_LOGO);
             display.drawXbm(0, 16, 16, 16, DRUMMER_LOGO);
+            display.drawXbm(0, 32, 16, 16, DRUMMER_LOGO);
 
             //显示温度
             if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS) // Mutex to make the data more clean
             {
                 display.drawStringf(2 + 16, 0 + 2,buffer,"BT:%4.2f",BT_CurTemp/100);
                 display.drawStringf(2 + 16, 18 + 2,buffer,"ET:%4.2f",ET_CurTemp/100);
+                display.drawStringf(2 + 16, 38,buffer,"AP:%4.2f",AP_CurVal/100);
             }
             xSemaphoreGive(xThermoDataMutex);
 
             //显示IP地址和蓝牙状态
             display.drawXbm(0, 32, 16, 16, WIFI_LOGO);
-            display.drawStringf(2 + 16, 36 + 2,buffer,"IP:%s",local_IP);
+            
+            display.drawString(2 + 16, 54,"IP:");
+            display.drawString(2 + 30, 54,local_IP);
+            
 
             display.display();
             vTaskDelay(user_wifi.sampling_time / portTICK_RATE_MS); // dealy 1s showup
