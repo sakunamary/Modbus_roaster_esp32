@@ -273,6 +273,7 @@ void notFound(AsyncWebServerRequest *request)
 
 void setup()
 {
+    String Thermo_ID;
 
  Serial.begin(BAUDRATE);
     while (!Serial)
@@ -441,11 +442,15 @@ if (user_wifi.Init_mode)
                       {
                           user_wifi.PWM_FREQ_ROLL = request->getParam("ROLL_PWM")->value().toInt();
                       }
-/*
+
                       if (request->getParam("thermo_msgID")->value() != "")
                       {
-                          user_wifi.Thermo_msgID = request->getParam("thermo_msgID")->value().toInt();
+
+                          Thermo_ID = request->getParam("thermo_msgID")->value();
+
+                                                    //user_wifi.Thermo_msgID 
                       }
+/*                      
                       if (request->getParam("air_msgID")->value() != "")
                       {
                           user_wifi.Airpressure_msgID = request->getParam("air_msgID")->value().toInt();
