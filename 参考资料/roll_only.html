@@ -76,8 +76,13 @@
             <h2 class=''>传感器模块设置</h2>
             <div class='form-floating'>
                 <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
-                <input type='text'  class='form-control'  name='thermo_msgID'> 
-                </div>
+                <select  class='form-control'  name='thermo_msgID'> 
+                    <option value="0x0F6"> 0x0F6  K型-MAX6675 2路</option>
+                    <option value="0x0F7"> 0x0F7  K型-MAX6675 4路</option>
+                    <option value="0x0F8"> 0x0F8  PT00-MAX31865 2路</option>
+                    <option value="0x0F9"> 0x0F9  PT00-MAX31865 4路</option>
+                    </select>
+            </div>
                 <br/>
                 <div class='form-floating'>
                     <label>热源PWM频率 (当前Hz:%HEAT_PWM_compens%)</label>

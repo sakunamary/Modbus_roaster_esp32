@@ -7,7 +7,7 @@
   }
 </script>
     <meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>
-    <title>MODBUS CONTROLER SETTING </title>
+    <title>MODBUS CONTROLER SETTING</title>
     <style>*,::after,::before{box-sizing:border-box;}
     body{margin:0;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans','Liberation Sans';
     font-size:1rem;
@@ -77,8 +77,10 @@
             <div class='form-floating'>
                 <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
                 <select  class='form-control'  name='thermo_msgID'> 
-                    <option value="0x0F6"> 0x0F6  K型-MAX6675</option>
-                    <option value="0x0F7"> 0x0F7  PT100-MAX31865</option>
+                    <option value="0x0F6"> 0x0F6  K型-MAX6675 2路</option>
+                    <option value="0x0F7"> 0x0F7  K型-MAX6675 4路</option>
+                    <option value="0x0F8"> 0x0F8  PT00-MAX31865 2路</option>
+                    <option value="0x0F9"> 0x0F9  PT00-MAX31865 4路</option>
                     </select>
             </div>
                 <br/>
