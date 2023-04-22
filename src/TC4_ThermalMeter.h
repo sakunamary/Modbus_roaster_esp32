@@ -55,8 +55,8 @@ void TaskThermalMeter(void *pvParameters)
             if (rx_frame.MsgID == 0x0F6 && rx_frame.FIR.B.DLC == 8){
                 if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS)
                 {
-                    BT_CurTemp=(rx_frame.data.u32[0]+  user_wifi.btemp_fix)*100 ;
-                    ET_CurTemp=(rx_frame.data.u32[1]+  user_wifi.etemp_fix)*100;
+                    BT_CurTemp=(rx_frame.data.u32[0]+  user_wifi.btemp_fix)/100;
+                    ET_CurTemp=(rx_frame.data.u32[1]+  user_wifi.etemp_fix)/100;
                     xSemaphoreGive(xThermoDataMutex);
             
                  } 
@@ -65,7 +65,7 @@ void TaskThermalMeter(void *pvParameters)
             if (rx_frame.MsgID == 0x0E6 && rx_frame.FIR.B.DLC == 8){ //airpress 
                 if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS)
                 {
-                    AP_CurVal=(rx_frame.data.u32[0]+  user_wifi.ap_fix)*100 ;
+                    AP_CurVal=(rx_frame.data.u32[0]+  user_wifi.ap_fix)/100 ;
                     xSemaphoreGive(xThermoDataMutex);
             
                  } 
