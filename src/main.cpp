@@ -309,7 +309,6 @@ void setup()
 #endif     
     digitalWrite(LED_WIFI,LOW);
 
-
     Serial.printf("\nREAD data from EEPROM...\n");
     // set up eeprom data
     EEPROM.begin(sizeof(user_wifi));
@@ -354,10 +353,12 @@ if (user_wifi.Init_mode)
             WiFi.mode(WIFI_AP);
             sprintf( ap_name ,"MODBUS-%02X%02X%02X",macAddr[2],macAddr[1],macAddr[0]);
             WiFi.softAP(ap_name, "12345678"); // defualt IP address :192.168.4.1 password min 8 digis
+
             break;
         }
         // show AP's IP
     }
+
 
     Serial.print("MODBUS_CONTROL IP:");
 
@@ -375,6 +376,8 @@ if (user_wifi.Init_mode)
         WIFI_STATUS=true;
         digitalWrite(LED_WIFI,HIGH);
     }
+
+    
     Serial.println("");
     // for index.html
     server_OTA.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -446,7 +449,7 @@ if (user_wifi.Init_mode)
                       if (request->getParam("thermo_msgID")->value() != "")
                       {
 
-                          Thermo_ID = request->getParam("thermo_msgID")->value();
+                         // Thermo_ID = request->getParam("thermo_msgID")->value();
 
                                                     //user_wifi.Thermo_msgID 
                       }
