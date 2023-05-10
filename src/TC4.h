@@ -13,14 +13,8 @@
 
 
 //modules settings
-#define ROLL_CONTROL
+//#define ROLL_CONTROL
 #define HAS_AP_INPUT
-
-
-#if defined(ROLL_CONTROL)
-    #define VERSION "1.0.0r"
-#endif    
-
 
 //
 #define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
@@ -91,6 +85,9 @@ const char wifi_sussce_html[] PROGMEM = R"rawliteral(
 
 //有风压有roll
 #if defined(HAS_AP_INPUT) && defined(ROLL_CONTROL)
+
+    #define VERSION "1.0.0F"
+
 
 const char index_html[] PROGMEM = R"rawliteral(
 <!doctype html><html lang='cn'>
@@ -227,6 +224,8 @@ const char index_html[] PROGMEM = R"rawliteral(
 //只有ROLL没有air
 #if defined(ROLL_CONTROL) && !defined(HAS_AP_INPUT)
 
+    #define VERSION "1.0.0R"
+
 const char index_html[] PROGMEM = R"rawliteral(
 <!doctype html><html lang='cn'>
 <head>
@@ -355,7 +354,9 @@ const char index_html[] PROGMEM = R"rawliteral(
 
 
 //只有AIR没有Roll
-#if !defined(ROLL_CONTROL) && !defined(HAS_AP_INPUT)
+#if !defined(ROLL_CONTROL) && defined(HAS_AP_INPUT)
+
+    #define VERSION "1.0.0A"
 
 const char index_html[] PROGMEM = R"rawliteral(
 <!doctype html><html lang='cn'>
@@ -489,6 +490,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 
 #if !defined(HAS_AP_INPUT) && !defined(ROLL_CONTROL)
 
+    #define VERSION "1.0.0"
 const char index_html[] PROGMEM = R"rawliteral(
 <!doctype html><html lang='cn'>
 <head>

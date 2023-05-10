@@ -282,6 +282,8 @@ void setup()
     }
 
     Serial.printf("\nArti-Mod  STARTING...\n");
+    
+    Serial.printf("\nSW version:%s\n",VERSION);
 
     Serial2.begin(BAUDRATE) ;
 
@@ -346,14 +348,14 @@ if (user_wifi.Init_mode)
     {
 
         delay(1000);
-
+        Serial.printf("\nWiFi connecting...\n");
         if (tries++ > 7)
         {
             // Serial_debug.println("WiFi.mode(AP):");
             WiFi.mode(WIFI_AP);
             sprintf( ap_name ,"MODBUS-%02X%02X%02X",macAddr[2],macAddr[1],macAddr[0]);
             WiFi.softAP(ap_name, "12345678"); // defualt IP address :192.168.4.1 password min 8 digis
-
+            
             break;
         }
         // show AP's IP
@@ -575,7 +577,11 @@ timestamp=millis();
     //check  analog input ,keep in low 
     Serial.printf("\nCheck FAN and ROLL input ,keep them low ...\n");
     fan_from_analog = analogRead(FAN_IN);
+    roll_from_analog =0;
+#if defined(ROLL_CONTROL) 
     roll_from_analog =  analogRead(ROLL_IN) ;
+#endif 
+
 
     while (fan_from_analog > 5 or roll_from_analog > 5) {
 
@@ -591,12 +597,12 @@ timestamp=millis();
         vTaskDelay(1000);
 
         fan_from_analog = analogRead(FAN_IN);
+#if defined(ROLL_CONTROL) 
         roll_from_analog =  analogRead(ROLL_IN) ;
+#endif         
 
         Serial.printf("\nFAN_IN:%d,ROLL_IN:%d\n",fan_from_analog,roll_from_analog);
     }
-
-
 
 
 
