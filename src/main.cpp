@@ -324,9 +324,9 @@ if (user_wifi.Init_mode)
     user_wifi.btemp_fix = 0;
     user_wifi.etemp_fix = 0;
     user_wifi.ap_fix = 0 ;
-    user_wifi.Thermo_msgID =0x0F6;
-    user_wifi.Airpressure_msgID=0x0E6;
-    user_wifi.PWMoutput_msgID=0x0D6;
+    user_wifi.Thermo_msgID =0x0A6;
+    user_wifi.Airpressure_msgID=0x0C6;
+    user_wifi.PWMoutput_msgID=0x0B6;
     user_wifi.PWM_FREQ_HEAT = PWM_FREQ;
     user_wifi.PWM_FREQ_ROLL = PWM_FREQ;
     user_wifi.PWM_FREQ_FAN =PWM_FREQ;
@@ -483,6 +483,37 @@ if (user_wifi.Init_mode)
     Serial.println("HTTP server started");
 
 
+
+
+    Serial.printf("\nStart tasks service...\n");
+
+    /*---------- Task Definition ---------------------*/
+    // Setup tasks to run independently.
+
+    xTaskCreatePinnedToCore(
+        TaskThermalMeter, "ThermalMeter" // MAX6675 thermal task to read Bean-Temperature (BT)
+        ,
+        1024*2 // Stack size
+        ,
+        NULL, 3 // Priority
+        ,
+        NULL, 
+        1 // Running Core decided by FreeRTOS,let core0 run wifi and BT
+    );
+
+    xTaskCreatePinnedToCore(
+        TaskIndicator, "IndicatorTask" // 128*64 SSD1306 OLED 显示参数
+        ,
+        1024*6 // This stack size can be checked & adjusted by reading the Stack Highwater
+        ,
+        NULL, 2 // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+        ,
+        &xHandle_indicator, 1 // Running Core decided by FreeRTOS , let core0 run wifi and BT
+    );
+
+
+
+
     Serial.printf("\nStart CANBUS  service...\n");
 //Init CANBUS 
     CAN_cfg.speed=CAN_SPEED_125KBPS;
@@ -540,31 +571,34 @@ if (user_wifi.Init_mode)
 
 timestamp=millis();
 
-    Serial.printf("\nStart tasks service...\n");
 
-    /*---------- Task Definition ---------------------*/
-    // Setup tasks to run independently.
+    //check  analog input ,keep in low 
+    Serial.printf("\nCheck FAN and ROLL input ,keep them low ...\n");
+    fan_from_analog = analogRead(FAN_IN);
+    roll_from_analog =  analogRead(ROLL_IN) ;
 
-    xTaskCreatePinnedToCore(
-        TaskThermalMeter, "ThermalMeter" // MAX6675 thermal task to read Bean-Temperature (BT)
-        ,
-        1024*2 // Stack size
-        ,
-        NULL, 3 // Priority
-        ,
-        NULL, 
-        1 // Running Core decided by FreeRTOS,let core0 run wifi and BT
-    );
+    while (fan_from_analog > 5 or roll_from_analog > 5) {
 
-    xTaskCreatePinnedToCore(
-        TaskIndicator, "IndicatorTask" // 128*64 SSD1306 OLED 显示参数
-        ,
-        1024*6 // This stack size can be checked & adjusted by reading the Stack Highwater
-        ,
-        NULL, 2 // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-        ,
-        &xHandle_indicator, 1 // Running Core decided by FreeRTOS , let core0 run wifi and BT
-    );
+        vTaskSuspend(xHandle_indicator); //停止显示
+        Serial.printf("\nFAN or ROLL input ERROR: \n");
+
+        display.clear();
+        display.setFont(ArialMT_Plain_16);
+        display.drawString(30, 14-4 + 4,"INPUT ERROR");
+        display.drawString(18, 30-4 + 4,"CHECK FAN &ROLL");
+        display.drawRect(2, 2, 128-2, 64-2);
+        display.display();
+        vTaskDelay(1000);
+
+        fan_from_analog = analogRead(FAN_IN);
+        roll_from_analog =  analogRead(ROLL_IN) ;
+
+        Serial.printf("\nFAN_IN:%d,ROLL_IN:%d\n",fan_from_analog,roll_from_analog);
+    }
+
+
+
+
 
 }
 

@@ -93,11 +93,12 @@ void TaskIndicator(void *pvParameters)
             //显示温度
             if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS) // Mutex to make the data more clean
             {
-                display.drawStringf(2 + 16, 0 + 2,buffer,"BT:%4.2f",BT_CurTemp/100);
-                display.drawStringf(2 + 16, 18 + 2,buffer,"ET:%4.2f",ET_CurTemp/100);
-                display.drawStringf(2 + 16, 38,buffer,"AP:%4.2f",AP_CurVal/100);
+                display.drawStringf(2 + 16, 0 + 2,buffer,"BT:%4.2f",BT_CurTemp);
+                display.drawStringf(2 + 16, 18 + 2,buffer,"ET:%4.2f",ET_CurTemp);
+                display.drawStringf(2 + 16, 38,buffer,"AP:%4.2f",AP_CurVal);
+                xSemaphoreGive(xThermoDataMutex);
             }
-            xSemaphoreGive(xThermoDataMutex);
+
 
             //显示IP地址和蓝牙状态
             display.drawXbm(0, 48, 16, 16, WIFI_LOGO);

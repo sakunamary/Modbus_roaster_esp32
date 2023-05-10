@@ -177,10 +177,10 @@ const char index_html[] PROGMEM = R"rawliteral(
             <div class='form-floating'>
                 <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
                 <select  class='form-control'  name='thermo_msgID'> 
-                    <option value="0x0F6"> 0x0F6  K型-MAX6675 2路</option>
-                    <option value="0x0F7"> 0x0F7  K型-MAX6675 4路</option>
-                    <option value="0x0F8"> 0x0F8  PT00-MAX31865 2路</option>
-                    <option value="0x0F9"> 0x0F9  PT00-MAX31865 4路</option>
+                    <option value="0x0A6"> 0x0A6  K型-MAX6675 2路</option>
+                    <option value="0x0A7"> 0x0A7  K型-MAX6675 4路</option>
+                    <option value="0x0A8"> 0x0A8  PT00-MAX31865 2路</option>
+                    <option value="0x0A9"> 0x0A9  PT00-MAX31865 4路</option>
                     </select>
             </div>
                 <br/>
@@ -307,10 +307,10 @@ const char index_html[] PROGMEM = R"rawliteral(
             <div class='form-floating'>
                 <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
                 <select  class='form-control'  name='thermo_msgID'> 
-                    <option value="0x0F6"> 0x0F6  K型-MAX6675 2路</option>
-                    <option value="0x0F7"> 0x0F7  K型-MAX6675 4路</option>
-                    <option value="0x0F8"> 0x0F8  PT00-MAX31865 2路</option>
-                    <option value="0x0F9"> 0x0F9  PT00-MAX31865 4路</option>
+                    <option value="0x0A6"> 0x0A6  K型-MAX6675 2路</option>
+                    <option value="0x0A7"> 0x0A7  K型-MAX6675 4路</option>
+                    <option value="0x0A8"> 0x0A8  PT00-MAX31865 2路</option>
+                    <option value="0x0A9"> 0x0A9  PT00-MAX31865 4路</option>
                     </select>
             </div>
                 <br/>
@@ -442,10 +442,10 @@ const char index_html[] PROGMEM = R"rawliteral(
             <div class='form-floating'>
                 <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
                 <select  class='form-control'  name='thermo_msgID'> 
-                    <option value="0x0F6"> 0x0F6  K型-MAX6675 2路</option>
-                    <option value="0x0F7"> 0x0F7  K型-MAX6675 4路</option>
-                    <option value="0x0F8"> 0x0F8  PT00-MAX31865 2路</option>
-                    <option value="0x0F9"> 0x0F9  PT00-MAX31865 4路</option>
+                    <option value="0x0A6"> 0x0A6  K型-MAX6675 2路</option>
+                    <option value="0x0A7"> 0x0A7  K型-MAX6675 4路</option>
+                    <option value="0x0A8"> 0x0A8  PT00-MAX31865 2路</option>
+                    <option value="0x0A9"> 0x0A9  PT00-MAX31865 4路</option>
                     </select>
             </div>
                 <br/>
@@ -569,10 +569,10 @@ const char index_html[] PROGMEM = R"rawliteral(
             <div class='form-floating'>
                 <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
                 <select  class='form-control'  name='thermo_msgID'> 
-                    <option value="0x0F6"> 0x0F6  K型-MAX6675 2路</option>
-                    <option value="0x0F7"> 0x0F7  K型-MAX6675 4路</option>
-                    <option value="0x0F8"> 0x0F8  PT00-MAX31865 2路</option>
-                    <option value="0x0F9"> 0x0F9  PT00-MAX31865 4路</option>
+                    <option value="0x0A6"> 0x0A6  K型-MAX6675 2路</option>
+                    <option value="0x0A7"> 0x0A7  K型-MAX6675 4路</option>
+                    <option value="0x0A8"> 0x0A8  PT00-MAX31865 2路</option>
+                    <option value="0x0A9"> 0x0A9  PT00-MAX31865 4路</option>
                     </select>
             </div>
                 <br/>

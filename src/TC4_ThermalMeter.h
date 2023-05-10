@@ -52,17 +52,17 @@ void TaskThermalMeter(void *pvParameters)
 
         if(xQueueReceive(CAN_cfg.rx_queue,&rx_frame, 3*portTICK_PERIOD_MS)==pdTRUE){
 
-            if (rx_frame.MsgID == 0x0F6 && rx_frame.FIR.B.DLC == 8){
+            if (rx_frame.MsgID == 0x0A6 && rx_frame.FIR.B.DLC == 8){
                 if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS)
                 {
                     BT_CurTemp=(rx_frame.data.u32[0]+  user_wifi.btemp_fix)/100;
                     ET_CurTemp=(rx_frame.data.u32[1]+  user_wifi.etemp_fix)/100;
                     xSemaphoreGive(xThermoDataMutex);
-            
+                    Serial.print(BT_CurTemp) ;
                  } 
             }
 #if defined(HAS_AP_INPUT)
-            if (rx_frame.MsgID == 0x0E6 && rx_frame.FIR.B.DLC == 8){ //airpress 
+            if (rx_frame.MsgID == 0x0C6 && rx_frame.FIR.B.DLC == 8){ //airpress 
                 if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS)
                 {
                     AP_CurVal=(rx_frame.data.u32[0]+  user_wifi.ap_fix)/100 ;
