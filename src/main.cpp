@@ -273,8 +273,6 @@ void notFound(AsyncWebServerRequest *request)
 
 void setup()
 {
-    String Thermo_ID;
-
  Serial.begin(BAUDRATE);
     while (!Serial)
     {
@@ -450,21 +448,20 @@ if (user_wifi.Init_mode)
 
                       if (request->getParam("thermo_msgID")->value() != "")
                       {
-
-                         // Thermo_ID = request->getParam("thermo_msgID")->value();
-
-                                                    //user_wifi.Thermo_msgID 
+                         user_wifi.Thermo_msgID = request->getParam("thermo_msgID")->value().toInt();
+                         Serial.printf("\nSet user_wifi.Thermo_msgID:%d" ,user_wifi.Thermo_msgID);
                       }
-/*                      
+                      
                       if (request->getParam("air_msgID")->value() != "")
                       {
                           user_wifi.Airpressure_msgID = request->getParam("air_msgID")->value().toInt();
+                          Serial.printf("\nSet user_wifi.Airpressure_msgID:%d" ,user_wifi.Airpressure_msgID);
                       }
                       if (request->getParam("PWMOUT_msgID")->value() != "")
                       {
                           user_wifi.PWMoutput_msgID = request->getParam("PWMOUT_msgID")->value().toInt();
                       }
-*/
+
                       
                       // Svae EEPROM
                       EEPROM.put(0, user_wifi);
@@ -535,7 +532,7 @@ if (user_wifi.Init_mode)
     pwm.write(ROLL_OUT_PIN, 0, user_wifi.PWM_FREQ_ROLL, resolution);
 #endif    
     pwm.resume();
-    //pwm.printConfig();
+    //pwm.printDebug();
     Serial.println("PWM started");  
     analogReadResolution(10); //0-1024
 
@@ -548,7 +545,7 @@ if (user_wifi.Init_mode)
 
     Serial.printf("\nStart Modbus-TCP  service...\n");
 //Init Modbus-TCP 
-    mb.server();		//Start Modbus IP
+    mb.server(502);		//Start Modbus IP //default port :502
     // Add SENSOR_IREG register - Use addIreg() for analog Inputs
     mb.addHreg(BT_HREG);
     mb.addHreg(ET_HREG);
