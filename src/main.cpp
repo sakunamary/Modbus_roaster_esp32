@@ -191,9 +191,9 @@ user_wifi_t user_wifi = {
                         0.0, //float  btemp_fix;
                         0.0, //float  etemp_fix;
                         0.0, //float  ap_fix;
-                        0x00, //uint32_t Thermo_msgID;
-                        0x00, //uint32_t Airpressure_msgID;
-                        0x00, //uint32_t PWMoutput_msgID;
+                        0x0A6, //uint32_t Thermo_msgID;
+                        0x0C6, //uint32_t Airpressure_msgID;
+                        0x0B6, //uint32_t PWMoutput_msgID;
                         PWM_FREQ, //int PWM_FREQ_HEAT;
                         PWM_FREQ, //int PWM_FREQ_FAN;
                         PWM_FREQ, //int PWM_FREQ_ROLL;
@@ -350,8 +350,9 @@ if (user_wifi.Init_mode)
         if (tries++ > 7)
         {
             // Serial_debug.println("WiFi.mode(AP):");
+            WiFi.macAddress(macAddr); 
             WiFi.mode(WIFI_AP);
-            sprintf( ap_name ,"MODBUS-%02X%02X%02X",macAddr[2],macAddr[1],macAddr[0]);
+            sprintf( ap_name ,"MODBUS-%02X%02X%02X",macAddr[0],macAddr[1],macAddr[2]);
             WiFi.softAP(ap_name, "12345678"); // defualt IP address :192.168.4.1 password min 8 digis
             
             break;
@@ -532,7 +533,7 @@ if (user_wifi.Init_mode)
     pwm.write(ROLL_OUT_PIN, 0, user_wifi.PWM_FREQ_ROLL, resolution);
 #endif    
     pwm.resume();
-    //pwm.printDebug();
+    pwm.printDebug();
     Serial.println("PWM started");  
     analogReadResolution(10); //0-1024
 
@@ -574,7 +575,7 @@ timestamp=millis();
     //check  analog input ,keep in low 
     Serial.printf("\nCheck FAN and ROLL input ,keep them low ...\n");
     fan_from_analog = analogRead(FAN_IN);
-    roll_from_analog =0;
+    roll_from_analog = 0;
 #if defined(ROLL_CONTROL) 
     roll_from_analog =  analogRead(ROLL_IN) ;
 #endif 

@@ -14,7 +14,7 @@
 
 //modules settings
 //#define ROLL_CONTROL
-#define HAS_AP_INPUT
+//#define HAS_AP_INPUT
 
 //
 #define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
@@ -35,7 +35,7 @@
 
 
 //pwm setting 
-#define PWM_FREQ 2000
+#define PWM_FREQ 2500
 #define PWM_RESOLUTION 12 //0-4096
 
 // 网页设置的参数
@@ -49,9 +49,9 @@
   uint32_t Thermo_msgID;
   uint32_t Airpressure_msgID;
   uint32_t PWMoutput_msgID;
-   int PWM_FREQ_HEAT;
-   int PWM_FREQ_FAN;
-   int PWM_FREQ_ROLL;
+   uint32_t PWM_FREQ_HEAT;
+   uint32_t PWM_FREQ_FAN;
+   uint32_t PWM_FREQ_ROLL;
   double sampling_time;//采样时间   单位：s
   bool   Init_mode ; //是否初始化模式
 } user_wifi_t;

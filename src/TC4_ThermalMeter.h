@@ -58,7 +58,7 @@ void TaskThermalMeter(void *pvParameters)
                     BT_CurTemp=(rx_frame.data.u32[0]+  user_wifi.btemp_fix)/100;
                     ET_CurTemp=(rx_frame.data.u32[1]+  user_wifi.etemp_fix)/100;
                     xSemaphoreGive(xThermoDataMutex);
-                    Serial.print(BT_CurTemp) ;
+                    //Serial.println(BT_CurTemp) ;
                  } 
             }
 #if defined(HAS_AP_INPUT)
