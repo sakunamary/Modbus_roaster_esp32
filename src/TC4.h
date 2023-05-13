@@ -41,19 +41,18 @@
 // 网页设置的参数
  typedef struct eeprom_settings 
 {
-  char ssid[60]; //增加到30个字符
-  char password[60]; //增加到30个字符
-  float  btemp_fix;
-  float  etemp_fix;
-  float  ap_fix;
-  uint32_t Thermo_msgID;
-  uint32_t Airpressure_msgID;
-  uint32_t PWMoutput_msgID;
-   uint32_t PWM_FREQ_HEAT;
-   uint32_t PWM_FREQ_FAN;
-   uint32_t PWM_FREQ_ROLL;
-  double sampling_time;//采样时间   单位：s
-  bool   Init_mode ; //是否初始化模式
+    char ssid[60]; //增加到30个字符
+    char password[60]; //增加到30个字符
+    float  btemp_fix;
+    float  etemp_fix;
+    float  ap_fix;
+    uint32_t Thermo_canID;
+    uint32_t AP_canID;
+    int PWM_FREQ_HEAT;
+    int PWM_FREQ_FAN;
+    int PWM_FREQ_ROLL;
+    double sampling_time;//采样时间   单位：s
+     bool   Init_mode ; //是否初始化模式
 } user_wifi_t;
 
 extern user_wifi_t  user_wifi ;
@@ -166,39 +165,7 @@ const char index_html[] PROGMEM = R"rawliteral(
             </div>
             <br/>
             <button type='submit'onclick="submitMessage()">保存</button>
-        </form> 
-        <form action='/canbus' method='get'> 
-            <br/>
-            <br/>
-            <h2 class=''>传感器模块设置</h2>
-            <div class='form-floating'>
-                <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
-                <select  class='form-control'  name='thermo_msgID'> 
-                    <option value="0x0A6"> 0x0A6  K型-MAX6675 2路</option>
-                    <option value="0x0A7"> 0x0A7  K型-MAX6675 4路</option>
-                    <option value="0x0A8"> 0x0A8  PT00-MAX31865 2路</option>
-                    <option value="0x0A9"> 0x0A9  PT00-MAX31865 4路</option>
-                    </select>
-            </div>
-                <br/>
-                <div class='form-floating'>
-                    <label>热源PWM频率 (当前Hz:%HEAT_PWM_compens%)</label>
-                    <input type='number' step = '100' max = '3000' min='0' class='form-control' name='HEAT_PWM'> 
-                    </div>
-                    <br/>
-                <div class='form-floating'>
-                    <label>风门PWM频率 (当前Hz:%FAN_PWM_compens%)</label>
-                    <input type='number'  step = '100' max = '3000' min='0'class='form-control' name='FAN_PWM'> 
-                    </div>
-                    <br/>    
-                <div class='form-floating'>
-                    <label>滚桶PWM频率 (当前Hz:%ROLL_PWM_compens%)</label>
-                    <input type='number'  step = '100' max = '3000' min='0' class='form-control' name='ROLL_PWM'> 
-                    </div>
-                    <br/>                                            
-                <button type='submit'onclick="submitMessage()">保存</button>
-
-        </form>              
+        </form>             
         <form action='/other' method='get'>   
             <br/>
             <br/>
@@ -298,38 +265,7 @@ const char index_html[] PROGMEM = R"rawliteral(
             </div>
             <br/>
             <button type='submit'onclick="submitMessage()">保存</button>
-        </form> 
-        <form action='/canbus' method='get'> 
-            <br/>
-            <br/>
-            <h2 class=''>传感器模块设置</h2>
-            <div class='form-floating'>
-                <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
-                <select  class='form-control'  name='thermo_msgID'> 
-                    <option value="0x0A6"> 0x0A6  K型-MAX6675 2路</option>
-                    <option value="0x0A7"> 0x0A7  K型-MAX6675 4路</option>
-                    <option value="0x0A8"> 0x0A8  PT00-MAX31865 2路</option>
-                    <option value="0x0A9"> 0x0A9  PT00-MAX31865 4路</option>
-                    </select>
-            </div>
-                <br/>
-                <div class='form-floating'>
-                    <label>热源PWM频率 (当前Hz:%HEAT_PWM_compens%)</label>
-                    <input type='number' step = '100' max = '3000' min='0' class='form-control' name='HEAT_PWM'> 
-                    </div>
-                    <br/>
-                <div class='form-floating'>
-                    <label>风门PWM频率 (当前Hz:%FAN_PWM_compens%)</label>
-                    <input type='number'  step = '100' max = '3000' min='0'class='form-control' name='FAN_PWM'> 
-                    </div>
-                    <br/>    
-                <div class='form-floating'>
-                    <label>滚桶PWM频率 (当前Hz:%ROLL_PWM_compens%)</label>
-                    <input type='number'  step = '100' max = '3000' min='0' class='form-control' name='ROLL_PWM'> 
-                    </div>
-                    <br/>                                            
-                <button type='submit'onclick="submitMessage()">保存</button>
-        </form>              
+        </form>         
         <form action='/other' method='get'>   
             <br/>
             <br/>
@@ -435,34 +371,7 @@ const char index_html[] PROGMEM = R"rawliteral(
             </div>
             <br/>
             <button type='submit'onclick="submitMessage()">保存</button>
-        </form> 
-        <form action='/canbus' method='get'> 
-            <br/>
-            <br/>
-            <h2 class=''>传感器模块设置</h2>
-            <div class='form-floating'>
-                <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
-                <select  class='form-control'  name='thermo_msgID'> 
-                    <option value="0x0A6"> 0x0A6  K型-MAX6675 2路</option>
-                    <option value="0x0A7"> 0x0A7  K型-MAX6675 4路</option>
-                    <option value="0x0A8"> 0x0A8  PT00-MAX31865 2路</option>
-                    <option value="0x0A9"> 0x0A9  PT00-MAX31865 4路</option>
-                    </select>
-            </div>
-                <br/>
-                <div class='form-floating'>
-                    <label>热源PWM频率 (当前Hz:%HEAT_PWM_compens%)</label>
-                    <input type='number' step = '100' max = '3000' min='0' class='form-control' name='HEAT_PWM'> 
-                    </div>
-                    <br/>
-                <div class='form-floating'>
-                    <label>风门PWM频率 (当前Hz:%FAN_PWM_compens%)</label>
-                    <input type='number'  step = '100' max = '3000' min='0'class='form-control' name='FAN_PWM'> 
-                    </div>
-                    <br/>    
-                                        
-                <button type='submit'onclick="submitMessage()">保存</button>
-        </form>              
+        </form>             
         <form action='/other' method='get'>   
             <br/>
             <br/>
@@ -563,34 +472,7 @@ const char index_html[] PROGMEM = R"rawliteral(
             </div>
             <br/>
             <button type='submit'onclick="submitMessage()">保存</button>
-        </form> 
-        <form action='/canbus' method='get'> 
-            <br/>
-            <br/>
-            <h2 class=''>传感器模块设置</h2>
-            <div class='form-floating'>
-                <label>温度传感器CanID (当前ID: %thermo_msgID_compens%) </label>
-                <select  class='form-control'  name='thermo_msgID'> 
-                    <option value="0x0A6"> 0x0A6  K型-MAX6675 2路</option>
-                    <option value="0x0A7"> 0x0A7  K型-MAX6675 4路</option>
-                    <option value="0x0A8"> 0x0A8  PT00-MAX31865 2路</option>
-                    <option value="0x0A9"> 0x0A9  PT00-MAX31865 4路</option>
-                    </select>
-            </div>
-                <br/>
-                <div class='form-floating'>
-                    <label>热源PWM频率 (当前Hz:%HEAT_PWM_compens%)</label>
-                    <input type='number' step = '100' max = '3000' min='0' class='form-control' name='HEAT_PWM'> 
-                    </div>
-                    <br/>
-                <div class='form-floating'>
-                    <label>风门PWM频率 (当前Hz:%FAN_PWM_compens%)</label>
-                    <input type='number'  step = '100' max = '3000' min='0'class='form-control' name='FAN_PWM'> 
-                    </div>
-                    <br/>                                       
-                <button type='submit'onclick="submitMessage()">保存</button>
-
-        </form>              
+        </form>           
         <form action='/other' method='get'>   
             <br/>
             <br/>
@@ -599,7 +481,7 @@ const char index_html[] PROGMEM = R"rawliteral(
             <label>采样时间 (当前值: %sampling_time%) s</label>
             <input type='number' step = '0.25' max = '4' min='0.75' class='form-control'  name='sampling_time'> 
             </div>
-            <br/>
+            <br/>                    
   
             <button type='submit'onclick="submitMessage()">保存</button>
         </form> 

@@ -191,9 +191,8 @@ user_wifi_t user_wifi = {
                         0.0, //float  btemp_fix;
                         0.0, //float  etemp_fix;
                         0.0, //float  ap_fix;
-                        0x0A6, //uint32_t Thermo_msgID;
-                        0x0C6, //uint32_t Airpressure_msgID;
-                        0x0B6, //uint32_t PWMoutput_msgID;
+                        0x0A6,   //uint32_t Thermo_canID;
+                        0x0C6,  //uint32_t AP_canID;
                         PWM_FREQ, //int PWM_FREQ_HEAT;
                         PWM_FREQ, //int PWM_FREQ_FAN;
                         PWM_FREQ, //int PWM_FREQ_ROLL;
@@ -235,30 +234,6 @@ String processor(const String &var) //返回当前值到html页面
     else if (var == "sampling_time")
     { //
         return String(user_wifi.sampling_time);
-    }
-    else if (var == "thermo_msgID_compens")
-    { //
-        return String(user_wifi.Thermo_msgID);
-    }
-     else if (var == "air_msgID_compens")
-    { //
-        return String(user_wifi.Airpressure_msgID);
-    }
-     else if (var == "PWMOUT_msgID_compens")
-    { //
-        return String(user_wifi.PWMoutput_msgID);
-    }
-     else if (var == "HEAT_PWM_compens")
-    { //
-        return String(user_wifi.PWM_FREQ_HEAT);
-    }
-     else if (var == "FAN_PWM_compens")
-    { //
-        return String(user_wifi.PWM_FREQ_FAN);
-    }    
-     else if (var == "ROLL_PWM_compens")
-    { //
-        return String(user_wifi.PWM_FREQ_ROLL);
     }
 
     return String();
@@ -324,9 +299,6 @@ if (user_wifi.Init_mode)
     user_wifi.btemp_fix = 0;
     user_wifi.etemp_fix = 0;
     user_wifi.ap_fix = 0 ;
-    user_wifi.Thermo_msgID =0x0A6;
-    user_wifi.Airpressure_msgID=0x0C6;
-    user_wifi.PWMoutput_msgID=0x0B6;
     user_wifi.PWM_FREQ_HEAT = PWM_FREQ;
     user_wifi.PWM_FREQ_ROLL = PWM_FREQ;
     user_wifi.PWM_FREQ_FAN =PWM_FREQ;
@@ -426,48 +398,12 @@ if (user_wifi.Init_mode)
                       {
                           user_wifi.sampling_time = request->getParam("sampling_time")->value().toFloat();
                       }
+
                       // Svae EEPROM
                       EEPROM.put(0, user_wifi);
                       EEPROM.commit();
                   });
 
-    server_OTA.on("/canbus", HTTP_GET, [](AsyncWebServerRequest *request)
-                  {
-                      // get value form webpage
-                      if (request->getParam("HEAT_PWM")->value() != "")
-                      {
-                          user_wifi.PWM_FREQ_HEAT = request->getParam("HEAT_PWM")->value().toInt();
-                      }
-                      if (request->getParam("FAN_PWM")->value() != "")
-                      {
-                          user_wifi.PWM_FREQ_FAN = request->getParam("FAN_PWM")->value().toInt();
-                      }
-                      if (request->getParam("ROLL_PWM")->value() != "")
-                      {
-                          user_wifi.PWM_FREQ_ROLL = request->getParam("ROLL_PWM")->value().toInt();
-                      }
-
-                      if (request->getParam("thermo_msgID")->value() != "")
-                      {
-                         user_wifi.Thermo_msgID = request->getParam("thermo_msgID")->value().toInt();
-                         Serial.printf("\nSet user_wifi.Thermo_msgID:%d" ,user_wifi.Thermo_msgID);
-                      }
-                      
-                      if (request->getParam("air_msgID")->value() != "")
-                      {
-                          user_wifi.Airpressure_msgID = request->getParam("air_msgID")->value().toInt();
-                          Serial.printf("\nSet user_wifi.Airpressure_msgID:%d" ,user_wifi.Airpressure_msgID);
-                      }
-                      if (request->getParam("PWMOUT_msgID")->value() != "")
-                      {
-                          user_wifi.PWMoutput_msgID = request->getParam("PWMOUT_msgID")->value().toInt();
-                      }
-
-                      
-                      // Svae EEPROM
-                      EEPROM.put(0, user_wifi);
-                      EEPROM.commit();
-                  });
 
 
 
@@ -587,7 +523,7 @@ timestamp=millis();
         Serial.printf("\nFAN or ROLL input ERROR: \n");
 
         display.clear();
-        display.setFont(ArialMT_Plain_16);
+        //display.setFont(ArialMT_Plain_10);
         display.drawString(30, 14-4 + 4,"INPUT ERROR");
         display.drawString(18, 30-4 + 4,"CHECK FAN &ROLL");
         display.drawRect(2, 2, 128-2, 64-2);
@@ -613,8 +549,8 @@ void loop()
    //Read each two seconds
    if (millis() > timestamp + 250) {
        timestamp = millis();
-    mb.Hreg(BT_HREG,BT_CurTemp);
-    mb.Hreg(ET_HREG,ET_CurTemp);
+    mb.Hreg(BT_HREG,BT_CurTemp*100);
+    mb.Hreg(ET_HREG,ET_CurTemp*100);
 #if defined(HAS_AP_INPUT)   
     mb.Hreg(AP_HREG,AP_CurVal);
 #endif

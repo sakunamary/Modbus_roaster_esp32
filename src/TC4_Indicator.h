@@ -88,24 +88,34 @@ void TaskIndicator(void *pvParameters)
 
             display.drawXbm(0, 0, 16, 16, BEAN_LOGO);
             display.drawXbm(0, 16, 16, 16, DRUMMER_LOGO);
+
+#if defined(HAS_AP_INPUT)           
             display.drawXbm(0, 32, 16, 16, DRUMMER_LOGO);
-
-            //显示温度
-            if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS) // Mutex to make the data more clean
-            {
-                display.drawStringf(2 + 16, 0 + 2,buffer,"BT:%4.2f",BT_CurTemp);
-                display.drawStringf(2 + 16, 18 + 2,buffer,"ET:%4.2f",ET_CurTemp);
-                display.drawStringf(2 + 16, 38,buffer,"AP:%4.2f",AP_CurVal);
-                xSemaphoreGive(xThermoDataMutex);
-            }
-
 
             //显示IP地址和蓝牙状态
             display.drawXbm(0, 48, 16, 16, WIFI_LOGO);
             
             display.drawString(2 + 16, 54,"IP:");
             display.drawString(2 + 30, 54,local_IP);
+
+#else 
+            display.drawXbm(0, 32, 16, 16, WIFI_LOGO);
             
+            display.drawString(2 + 16, 54-16,"IP:");
+            display.drawString(2 + 30, 54-16,local_IP);
+#endif             
+
+
+            //显示温度
+            if (xSemaphoreTake(xThermoDataMutex, xIntervel) == pdPASS) // Mutex to make the data more clean
+            {
+                display.drawStringf(2 + 16, 0 + 2,buffer,"BT:%4.2f",BT_CurTemp);
+                display.drawStringf(2 + 16, 18 + 2,buffer,"ET:%4.2f",ET_CurTemp);
+#if defined(HAS_AP_INPUT)           
+                display.drawStringf(2 + 16, 38,buffer,"AP:%4.2f",AP_CurVal);
+#endif
+                xSemaphoreGive(xThermoDataMutex);
+            }
 
             display.display();
             vTaskDelay(user_wifi.sampling_time / portTICK_RATE_MS); // dealy 1s showup
