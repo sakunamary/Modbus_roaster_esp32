@@ -295,7 +295,7 @@ void setup()
 if (user_wifi.Init_mode) 
 {
     user_wifi.Init_mode = false ;
-    user_wifi.sampling_time = 0.75; 
+    user_wifi.sampling_time = 1.0; 
     user_wifi.btemp_fix = 0;
     user_wifi.etemp_fix = 0;
     user_wifi.ap_fix = 0 ;
