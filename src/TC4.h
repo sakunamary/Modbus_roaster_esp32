@@ -31,7 +31,7 @@
 #define PWM_FAN  26
 #define PWM_HEAT 14
 #define RXD2     16
-#define TXD      17
+#define TXD2     17
 
 
 //pwm setting 
